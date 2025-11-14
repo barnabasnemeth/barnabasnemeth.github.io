@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Créme's Dessert – Rendelés</title>
+
+    <!-- Fonts & Bootstrap -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Besley:ital,wght@0,400..900;1,400..900&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+
+
+
+    <!-- EmailJS (optional sending) -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3.11.0/dist/email.min.js"></script>
+    <script>
+        // If you want to send with EmailJS, keep this init and fill your template below.
+        emailjs.init('ev0f5DxorWd5oCGPL');
+    </script>
+
+    <style>
+        :root {
+            --bg1: linear-gradient(to bottom, #FAEED1 0%, #FAEED1 50%, #F9DFC1 100%);
+            --bg2: linear-gradient(to top, #FDF7E4 0%, #FDF7E4 50%, #FCE7D4 100%);
+            --ink: #322C2B;
+            --accent1: #F8C794;
+            --accent2: #D8AE7E;
+        }
+
+        body {
+            font-family: "Besley", serif;
+            background: var(--bg2);
+            color: var(--ink);
+        }
+
+        /* Fluid headline scale */
+        h1 {
+            font-size: clamp(1.6rem, 2.5vw + 1rem, 2.4rem);
+        }
+
+        h5 {
+            background: linear-gradient(90deg, #FAEED1 0%, #F9DFC1 100%);
+           color: #99582A;
+           padding: 0.6rem 1.2rem;
+           border-radius: 0.4rem;
+           font-weight: bold;
+           letter-spacing: 0.5px;
+           box-shadow: 0 2px 8px rgba(249, 223, 193, 0.15);
+        }
+
+        /* Softer card and inputs */
+        .card {
+            border: 1px solid #efeadf;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .06);
+        }
+
+        label {
+            font-weight: 600;
+        }
+
+        .form-control,
+        .custom-select {
+            border-radius: 10px;
+        }
+
+        .input-group-text {
+            border-radius: 10px 0 0 10px;
+        }
+
+        /* Brand-aligned focus ring */
+        .form-control:focus,
+        .custom-select:focus {
+            border-color: #D8AE7E;
+            box-shadow: 0 0 0 .2rem rgba(216, 174, 126, .25);
+        }
+
+        /* Dividers + buttons */
+        hr {
+            border-top: 1px solid rgba(50, 44, 43, .12);
+        }
+
+        .badge-soft {
+            font-size: .9rem;
+            letter-spacing: .3px;
+        }
+
+        .btn-cream {
+            transition: transform .06s ease-in-out;
+        }
+
+        .btn-cream:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Alert autohide space */
+        #alertBox {
+            margin-bottom: 1rem;
+        }
+
+        /* Mobile-friendly padding in card */
+        @media (max-width: 576px) {
+            .card {
+                padding: 1rem !important;
+            }
+
+            #urgencyWarning {
+                display: block;
+            }
+        }
+
+        /* Summary modal table tweaks (if you use it) */
+        #summaryModal .table td:nth-child(3),
+        #summaryModal .table td:nth-child(4),
+        #summarySubtotal {
+            text-align: right;
+        }
+
+        #summaryNotes {
+            background: rgba(248, 199, 148, .12);
+            border: 1px dashed rgba(216, 174, 126, .7);
+            border-radius: 10px;
+            padding: .75rem .9rem;
+            margin-top: .75rem;
+        }
+
+        /* IMPORTANT: fix from your styles.css that breaks mobile */
+        .navbar .container {
+            width: auto !important;
+        }
+
+        /* Your 300% width kills responsiveness */
+
+
+        .card {
+            border: 1px solid #e9dfd2;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+            border-radius: 14px;
+        }
+
+        .badge-soft {
+            background: linear-gradient(to right, #ffaa48, #F8C794);
+            color: #353131;
+            border: 2px solid var(--accent2);
+            border-radius: 999px;
+            padding: .35rem .75rem;
+            font-weight: 700;
+        }
+
+        .btn-cream {
+            background: linear-gradient(to right, #ffaa48, #F8C794);
+            color: #353131 !important;
+            border: 2px solid var(--accent2);
+            border-radius: 30px;
+            font-weight: 700;
+        }
+
+        .btn-cream:focus {
+            box-shadow: 0 0 0 4px rgba(248, 199, 148, .35);
+        }
+
+        .req {
+            color: #a35c00;
+            font-weight: 600;
+            margin-left: .25rem;
+        }
+
+        .form-text.muted {
+            color: #7b5b3b;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container py-5">
+        <header class="text-center mb-4">
+            <span class="badge-soft d-inline-block px-3 py-1">Rendelési űrlap</span>
+            <h1 class="mt-3 mb-2">Créme's Dessert Tortarendelés</h1>
+            <p class="mb-0">Töltse ki az alábbi mezőket. A <span class="req">*</span>-gal jelölt mezők kötelezők.</p>
+        </header>
+
+        <div id="alertBox" class="alert d-none" role="alert"></div>
+
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10 col-xl-8">
+                <div class="card p-3 p-md-4 shadow-sm">
+                    <form id="orderForm" class="needs-validation" novalidate>
+                        <!-- Ügyfél adatok -->
+                                                 <h5 class="mt-2 mb-2">Megrendelő adatai</h5>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nev">Név <span class="req">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-white"><i
+                                                class="fa-regular fa-user"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" id="nev" required />
+                                    <div class="invalid-feedback">Kérjük, add meg a neved.</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="email">Email <span class="req">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-white"><i
+                                                class="fa-regular fa-envelope"></i></span>
+                                    </div>
+                                    <input type="email" class="form-control" id="email" required />
+                                    <div class="invalid-feedback">Kérjük, érvényes email címet adj meg.</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="telefonszam">Telefonszám <span class="req">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-white"><i class="fa-solid fa-phone"></i></span>
+                                    </div>
+<input type="tel"
+       class="form-control"
+       id="telefonszam"
+       required
+       placeholder="+36 30 123 4567"
+       pattern="^(?:\+36|06)\s?(?:1|[2-9]\d)\s?\d{3}\s?\d{3,4}$" />
+
+                                    <div class="invalid-feedback">Kérjük, érvényes telefonszámot adjon meg.</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="rendeles_ideje">Rendelés ideje</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-white"><i
+                                                class="fa-regular fa-clock"></i></span>
+                                    </div>
+                                    <input type="datetime-local" class="form-control" id="rendeles_ideje" readonly />
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Átvétel -->
+                         <h5 class="mt-2 mb-2">Átvételi adatok</h5>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="atvetel_napja">Átvétel napja <span class="req">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-white"><i
+                                                class="fa-regular fa-calendar"></i></span>
+                                    </div>
+                                    <input type="date" class="form-control" id="atvetel_napja" required />
+                                </div>
+                                <small class="form-text muted">Minden torta frissen és gondosan készül, ezért 48 órán
+                                    belül nem tudunk tortát átadni.</small>
+                                <small id="atvetelDayWarning" class="text-danger d-none">
+                                    Hétfői és keddi napokon cukrászdánk zárva tart. Kérem válasszon másik napot!
+                                </small>
+
+                                <small id="urgencyWarning" class="text-warning d-none">
+                                    <strong>Figyelem!</strong> 5 napon belüli átvételi időpont esetén rövid határidős
+                                    felár kerül felszámításra.
+                                </small>
+                                <div class="invalid-feedback">Kérjük, add meg az átvétel napját.</div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="atvetel_intervallum">Átvételi idősáv <span class="req">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-white">
+                                            <i class="fa-regular fa-hourglass"></i>
+                                        </span>
+                                    </div>
+                                    <select id="atvetel_intervallum" class="form-control" required disabled>
+                                        <option value="" selected disabled>Válasszon idősávot…</option>
+                                    </select>
+                                </div>
+                                <div class="invalid-feedback">Kérjük, válasszon átvételi idősávot.</div>
+                                <small class="form-text muted">A rendelkezésre álló idősávok a választott nap szerint
+                                    jelennek meg.</small>
+                            </div>
+
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Torta adatai -->
+                        <h5 class="mt-2 mb-2">Torta adatai</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="torta_tipusa">Torta típusa <span class="req">*</span></label>
+                                <select id="torta_tipusa" class="form-control" required>
+                                    <option value="" selected disabled>Válasszon tortát…</option>
+                                    <option value="egyeb">Egyéb…</option>
+                                </select>
+                                <div class="invalid-feedback">Kérjük, válassz tortatípust.</div>
+                                <small id="torta_badge" class="form-text text-muted d-none"></small>
+                                <strong id="torta_ar" class="d-block d-none"></strong>
+
+                                <input type="text" id="egyeb_torta_megnev" class="form-control mt-2 d-none"
+                                    placeholder="Add meg a torta nevét…" />
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="szeletek_szama">Szeletek száma <span class="req">*</span></label>
+                                <select class="form-control" id="szeletek_szama" required>
+                                    <option value="" selected disabled>Válasszon…</option>
+                                    <option value="8">8 szeletes</option>
+                                    <option value="12">12 szeletes</option>
+                                    <option value="16">16 szeletes</option>
+                                    <option value="24">24 szeletes</option>
+                                </select>
+                                <small class="form-text muted">A 8 / 12 / 16 szeletes a leggyakoribb méret.</small>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+
+                        <!-- Kiegészítők -->
+                        <h5 class="mt-4 mb-3">Kiegészítők (opcionális)</h5>
+
+                        <div class="col-md-12">
+
+                            <!-- Számgyertya -->
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="szamgyerta" />
+                                <label class="form-check-label" for="szamgyerta">Számgyertya</label>
+                            </div>
+
+                            <div id="szamgyertya_mennyiseg_wrapper" class="d-none ml-4 mb-3">
+                                <label for="szamgyertya_szam" class="mb-1">Milyen szám kerüljön a tortára?</label>
+                                <input type="text" class="form-control" id="szamgyertya_szam" placeholder="Pl.: 32"
+                                    inputmode="numeric" pattern="^[0-9]+$" />
+                                <small class="form-text muted mt-1">
+                                    A számjegyek darabszáma alapján számolunk (pl. 32 → 2 db szám).
+                                </small>
+                                <small class="form-text muted mt-1">
+                                    Egységár: <span id="szamgyertya_egysegar">…</span>
+                                </small>
+                                <strong class="d-block mt-1">
+                                    Számgyertya ára: <span id="szamgyertya_ar">0 Ft</span>
+                                    <span id="szamgyertya_reszletek" class="text-muted"></span>
+                                </strong>
+                            </div>
+
+                            <!-- Tűzijáték -->
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="tuzijatek" />
+                                <label class="form-check-label" for="tuzijatek">
+                                    Tűzijáték <span id="tuzijatek_ar">(…)</span>
+                                </label>
+                            </div>
+
+                            <!-- Tortadoboz -->
+<!-- Tortadoboz -->
+<div class="form-check mb-2">
+  <input class="form-check-input" type="checkbox" id="tortadoboz" />
+  <label class="form-check-label" for="tortadoboz">
+    Tortadoboz <span id="tortadoboz_ar">(…)</span>
+  </label>
+</div>
+<small class="form-text text-muted mb-3" style="margin-left: 1.6rem;">
+  Természetesen saját doboz is hozható.
+</small>
+
+
+                            <!-- HACCP -->
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="haccp" />
+                                <label class="form-check-label" for="haccp">HACCP igazolás</label>
+                            </div>
+
+                            <!-- Áfás számla -->
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="afas_szamla" />
+                                <label class="form-check-label" for="afas_szamla">ÁFÁs számla</label>
+                            </div>
+
+                            <!-- Áfás számla adatok -->
+                            <div id="afas_adatok" class="border rounded p-3 mt-2 d-none">
+                                <label for="cegnev">Cégnév <span class="req">*</span></label>
+                                <input type="text" class="form-control mb-2" id="cegnev" />
+
+                                <label for="ceg_cim">Cím <span class="req">*</span></label>
+                                <input type="text" class="form-control mb-2" id="ceg_cim" />
+
+                                <label for="adoszam">Adószám <span class="req">*</span></label>
+                                <input type="text" class="form-control" id="adoszam" placeholder="12345678-1-12" />
+                            </div>
+
+                        </div>
+
+
+                        <hr class="my-4">
+
+
+                        <!-- Megjegyzés + gombok -->
+                        <div class="mb-3">
+                            <label for="megjegyzes">Megjegyzés (opcionális)</label>
+                            <textarea class="form-control" id="megjegyzes" rows="4"
+                                placeholder="Allergének, felirat a tortára, extra kérések…"></textarea>
+                        </div>
+
+                        <div class="d-flex flex-column flex-sm-row gap-2 gap-sm-3 mt-2">
+                            <button type="button" class="btn btn-cream px-4" id="btnSummary">
+                                Rendelésösszesítő
+                            </button>
+                            <a href="index.html" class="btn btn-link order-3">Vissza a főoldalra</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-center mt-4 mb-0 small text-muted">
+            A rendelés elküldése nem minősül automatikus visszaigazolásnak. Kollégánk rövidesen felveszi Önnel a
+            kapcsolatot.
+        </p>
+    </main>
+
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+
+    <script>
+// Állítsd be a GAS webapp URL-t:
+const SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwAy-7KOqk9MjwFfQtVGPyuuAPFDDAfjJpV5_L9cxEqFtuqj4xvgZY-XLUPQYsEEHw/exec';
+
+function buildAfasAdatokJSON() {
+  const need = document.getElementById('afas_szamla')?.checked;
+  if (!need) return '';
+  const obj = {
+    cegnev: (document.getElementById('cegnev')?.value || '').trim(),
+    cim:    (document.getElementById('ceg_cim')?.value || '').trim(),
+    adoszam:(document.getElementById('adoszam')?.value || '').trim(),
+  };
+  return (!obj.cegnev && !obj.cim && !obj.adoszam) ? '' : JSON.stringify(obj);
+}
+
+
+// A te collectPayload()-odra támaszkodva kiegészítjük a Sheet oszlopokhoz
+function buildSheetPayload() {
+  const p = collectPayload(); // nálad már létezik
+
+  // Checkboxok egységesítése
+  p.szamgyerta   = document.getElementById('szamgyerta')?.checked ? 'igen' : 'nem';
+  p.tuzijatek    = document.getElementById('tuzijatek')?.checked  ? 'igen' : 'nem';
+  p.tortadoboz   = document.getElementById('tortadoboz')?.checked ? 'igen' : 'nem';
+  p.haccp        = document.getElementById('haccp')?.checked      ? 'igen' : 'nem';
+  p.afas_szamla  = document.getElementById('afas_szamla')?.checked? 'igen' : 'nem';
+
+  // Számgyertya típus (felhasználó által bevitt szám, pl. "32")
+  p.szamgyertya_tipus = (document.getElementById('szamgyertya_szam')?.value || '').trim();
+
+  // Áfás számla adatok JSON-ként
+  p.afas_szamla_adatok = buildAfasAdatokJSON();
+
+  // Allergia érzékenység – jelenleg nincs külön meződ: hagyjuk üresen (vagy később bevezetheted a UI-ban)
+  p.allergia_erzekenyseg = '';
+
+  // ÖSSZEGEK KISZÁMÍTÁSA CSAK ISMERT TÉTELEKBŐL
+  const amt = computeOrderAmounts();
+  p.torta_ossz_HUF          = amt.torta_ossz_HUF;
+  p.szamgyertya_ossz_HUF    = amt.szamgyertya_ossz_HUF;
+  p.tuzijatek_ossz_HUF      = amt.tuzijatek_ossz_HUF;
+  p.tortadoboz_ossz_HUF     = amt.tortadoboz_ossz_HUF;
+  p.rovid_hataridos         = amt.rovid_hataridos;
+  p.rovid_hataridos_felar_HUF = amt.rovid_hataridos_felar_HUF;
+  p.reszosszeg_ismertek_HUF = amt.reszosszeg_ismertek_HUF;
+  p.vegosszeg_HUF           = amt.vegosszeg_HUF;
+
+  // Alap státuszok
+  p.statusz = 'új';
+  p.fizetve = 'nem';
+
+  return p;
+}
+
+async function sendOrderToSheet(payload) {
+  // Send as x-www-form-urlencoded to avoid CORS preflight
+  const body = new URLSearchParams(payload);
+
+  const res = await fetch(SHEET_WEBAPP_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+    body
+  });
+
+  const text = await res.text(); // <-- read TEXT, not JSON
+  if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + text);
+
+  // Expect a simple semicolon-separated OK line from GAS, e.g. "OK;sorszam=123"
+  if (!/^OK\b/i.test(text.trim())) {
+    // Bubble up whatever the script sent (can be your own error message)
+    throw new Error(text.trim());
+  }
+
+  // Optionally parse fields, e.g. sorszam:
+  // const parts = Object.fromEntries(text.split(';').map(p => p.split('=')));
+  return text;
+}
+
+function buildEmailTemplateParams(p) {
+  return {
+    from_name: p.nev,
+    from_email: p.email,
+    phone: p.telefonszam,
+    pickup_date: p.atvetel_napja,
+    pickup_slot: p.atvetel_intervallum,
+
+    cake_type: p.torta_tipusa,
+    slices: p.szeletek_szama,
+
+    szamgyertya: p.szamgyerta,
+    szamgyertya_szam: p.szamgyertya_szam || '',
+    szamgyertya_db: p.szamgyertya_db || '',
+    szamgyertya_ar: p.szamgyertya_ar || '',
+    szamgyertya_egysegar: p.szamgyertya_egysegar || '',
+
+    tuzijatek: p.tuzijatek,
+    tortadoboz: p.tortadoboz,
+    haccp: p.haccp,
+    afas_szamla: p.afas_szamla,
+
+    torta_ossz_HUF: p.torta_ossz_HUF || '',
+    szamgyertya_ossz_HUF: p.szamgyertya_ossz_HUF || '',
+    tuzijatek_ossz_HUF: p.tuzijatek_ossz_HUF || '',
+    tortadoboz_ossz_HUF: p.tortadoboz_ossz_HUF || '',
+    reszosszeg_ismertek_HUF: p.reszosszeg_ismertek_HUF || '',
+    vegosszeg_HUF: p.vegosszeg_HUF || '',
+
+    rovid_hataridos: p.rovid_hataridos || '',
+    rovid_hataridos_felar_HUF: p.rovid_hataridos_felar_HUF || '',
+
+    message: p.megjegyzes || ''
+  };
+}
+
+
+
+// A modalban a "Rendelés leadása" gombra futtatjuk
+async function finalizeOrderFromModal() {
+  const form = document.getElementById('orderForm');
+  if (!form.checkValidity()) {
+    form.classList.add('was-validated');
+    return;
+  }
+
+  // Payload a Sheethez
+  const payload = buildSheetPayload();
+
+  // Gomb állapot
+  const btn = document.getElementById('btnPlaceOrder');
+  const oldLabel = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = 'Küldés…';
+
+  try {
+    // 1) Mentsük a Google Sheetbe
+    await sendOrderToSheet(payload);
+
+    // 2) (Opcionális) EmailJS értesítés – ha szeretnéd megtartani
+try {
+  const emailParams = buildEmailTemplateParams(payload);
+  await emailjs.send('service_063rd6q', 'template_rendeles', emailParams);
+} catch (e) {
+  console.warn('EmailJS nem sikerült (nem kritikus):', e);
+}
+
+    // UI visszajelzés
+    $('#summaryModal').modal('hide');
+    showAlert('success', 'Köszönjük! Rendelése beérkezett. Hamarosan felvesszük Önnel a kapcsolatot.');
+
+    // Reset
+    form.reset();
+    form.classList.remove('was-validated');
+    setMinDates(); // nálad már megvan
+
+  } catch (err) {
+    console.error(err);
+    showAlert('danger', 'Sajnáljuk, hiba történt a mentésnél. Kérjük, próbáld újra.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = oldLabel;
+  }
+}
+
+// Modal gomb összekötése
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('btnPlaceOrder');
+  if (btn) btn.addEventListener('click', finalizeOrderFromModal);
+});
+</script>
+
+
+    <script>
+        // ---- CONFIG ----
+        const pricingSheetUrl =
+            'https://docs.google.com/spreadsheets/d/1QZOUq7eYXNSwd3CkgJmQMCGrDCxqQ7FO2RmozPnQWkM/gviz/tq?sheet=tortak&tqx=out:json';
+
+        // ---- POPULATE SELECT FROM SHEET ----
+        const tortakUrl =
+            'https://docs.google.com/spreadsheets/d/1QZOUq7eYXNSwd3CkgJmQMCGrDCxqQ7FO2RmozPnQWkM/gviz/tq?sheet=tortak&tqx=out:json';
+
+        // ide építünk egy katalógust: { [tortaNev]: { badge, prices: {8:13000,12:18000,16:23500} } }
+        const TortaCatalog = {};
+
+        // ---- segédek ----
+        const ft = n => (typeof n === 'number' && !isNaN(n)) ? new Intl.NumberFormat('hu-HU').format(n) + ' Ft' : '';
+
+        function parseFtLikeToNumber(s) {
+            // pl. "13.000,- " -> 13000
+            if (!s) return NaN;
+            return Number(String(s).replace(/\s|\.|,-|,|Ft/gi, '').trim());
+        }
+
+        function parsePriceTriple(cellText) {
+            // "13.000,- / 18.000,- / 23.500,-" -> {8:13000,12:18000,16:23500}
+            const out = {};
+            if (!cellText) return out;
+            const parts = String(cellText).split('/').map(p => p.trim());
+            const mapOrder = [8, 12, 16];
+            parts.forEach((p, idx) => {
+                const val = parseFtLikeToNumber(p);
+                if (!isNaN(val) && mapOrder[idx] != null) out[mapOrder[idx]] = val;
+            });
+            return out;
+        }
+
+        // ---- táblázat betöltése + select feltöltése ----
+        async function populateTortaSelectFromSheet() {
+            const sel = document.getElementById('torta_tipusa');
+            if (!sel) return;
+
+            try {
+                const res = await fetch(tortakUrl);
+                const text = await res.text();
+                const data = JSON.parse(text.substring(47, text.length - 2));
+                const rows = data?.table?.rows || [];
+
+                // select reset
+                const prev = sel.value;
+                sel.innerHTML = '';
+                sel.insertAdjacentHTML('beforeend', '<option value="" selected disabled>Válasszon tortát…</option>');
+
+                // rows[0] = fejléc, ezért 1-től
+                rows.slice(1).forEach(row => {
+                    const name = row.c?.[0]?.v?.toString().trim(); // A: tortanév
+                    const badge = row.c?.[1]?.v?.toString().trim() || ''; // B: Mentességek
+                    const triple = row.c?.[2]?.v?.toString().trim() || ''; // C: "8 / 12 / 16"
+                    if (!name) return;
+
+                    // katalógus feltöltése
+                    TortaCatalog[name] = {
+                        badge,
+                        prices: parsePriceTriple(triple)
+                    };
+
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    opt.textContent = badge ? `${name} (${badge})` : name;
+                    sel.appendChild(opt);
+                });
+
+                // Egyéb…
+                const custom = document.createElement('option');
+                custom.value = 'egyeb';
+                custom.textContent = 'Egyéb…';
+                sel.appendChild(custom);
+
+                if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
+            } catch (e) {
+                console.error('Torták betöltési hiba:', e);
+                sel.innerHTML = '<option value="" selected disabled>Jelenleg nem elérhetők – válasszon Egyéb…</option>';
+                const custom = document.createElement('option');
+                custom.value = 'egyeb';
+                custom.textContent = 'Egyéb…';
+                sel.appendChild(custom);
+            }
+        }
+
+        // ---- ár és badge megjelenítés a választások függvényében ----
+        function updateTortaPriceUI() {
+            const selTorta = document.getElementById('torta_tipusa');
+            const selSlices = document.getElementById('szeletek_szama');
+            const badgeEl = document.getElementById('torta_badge');
+            const priceEl = document.getElementById('torta_ar');
+            const egyebInp = document.getElementById('egyeb_torta_megnev');
+
+            const torta = selTorta.value;
+            const slices = parseInt(selSlices.value, 10);
+
+            // alap elrejtés
+            badgeEl.classList.add('d-none');
+            priceEl.classList.add('d-none');
+
+            // Egyéb vagy 24 szeletes → egyedi ár
+            if (torta === 'egyeb' || slices === 24 || !TortaCatalog[torta]) {
+                if (torta === 'egyeb') {
+                    egyebInp?.classList.remove('d-none');
+                    egyebInp.required = true;
+                } else {
+                    egyebInp?.classList.add('d-none');
+                    egyebInp.required = false;
+                }
+                priceEl.textContent = 'Az ár az elképzelések egyeztetése után kerül meghatározásra.';
+                priceEl.classList.remove('d-none');
+                badgeEl.textContent = (TortaCatalog[torta]?.badge || '').trim();
+                if (badgeEl.textContent) badgeEl.classList.remove('d-none');
+                return;
+            } else {
+                egyebInp?.classList.add('d-none');
+                egyebInp.required = false;
+            }
+
+            const { badge, prices } = TortaCatalog[torta];
+
+            // Mentességek
+            if (badge) {
+                badgeEl.textContent = `Mentességek: ${badge}`;
+                badgeEl.classList.remove('d-none');
+            }
+
+            // Ár a szeletszám alapján
+            if ([8, 12, 16].includes(slices) && prices[slices]) {
+                priceEl.textContent = `A torta ára: ${ft(prices[slices])}`;
+                priceEl.classList.remove('d-none');
+            } else if (slices === 24) {
+                priceEl.textContent = 'Ár: egyedi igény szerint';
+                priceEl.classList.remove('d-none');
+            } else {
+                // nincs kiválasztva szeletszám, csak tortát váltott
+                priceEl.textContent = '';
+                priceEl.classList.add('d-none');
+            }
+        }
+
+        // ---- eseménykezelők ----
+        document.addEventListener('DOMContentLoaded', () => {
+            populateTortaSelectFromSheet();
+
+            const tortaSel = document.getElementById('torta_tipusa');
+            const sliceSel = document.getElementById('szeletek_szama');
+
+            tortaSel.addEventListener('change', updateTortaPriceUI);
+            sliceSel.addEventListener('change', updateTortaPriceUI);
+        });
+
+
+        // ---- "Egyéb…" mező megjelenítés ----
+        function setupEgyebTortaToggle() {
+            const tortaSelect = document.getElementById('torta_tipusa');
+            const egyebInput = document.getElementById('egyeb_torta_megnev');
+            if (!tortaSelect || !egyebInput) return;
+
+            tortaSelect.addEventListener('change', () => {
+                if (tortaSelect.value === 'egyeb') {
+                    egyebInput.classList.remove('d-none');
+                    egyebInput.required = true;
+                    egyebInput.focus();
+                } else {
+                    egyebInput.classList.add('d-none');
+                    egyebInput.required = false;
+                    egyebInput.value = '';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            populateTortaSelectFromSheet();
+            setupEgyebTortaToggle();
+        });
+    </script>
+
+    <script>
+        // Helpers
+        function setMinDates() {
+            const todayISO = new Date().toISOString().slice(0, 10);
+            const nowLocal = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const nowStr = nowLocal.getFullYear() + '-' + pad(nowLocal.getMonth() + 1) + '-' + pad(nowLocal.getDate()) + 'T' + pad(nowLocal.getHours()) + ':' + pad(nowLocal.getMinutes());
+            document.getElementById('atvetel_napja').setAttribute('min', todayISO);
+            document.getElementById('rendeles_ideje').value = nowStr;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const pickup = document.getElementById('atvetel_napja');
+
+            function isMondayOrTuesday(dateStr) {
+                const d = new Date(dateStr + 'T00:00:00');
+                const day = d.getDay(); // 0=vasárnap, 1=hétfő, 2=kedd, …
+                return day === 1 || day === 2;
+            }
+
+            function validatePickupDate() {
+                if (!pickup.value) return;
+
+                if (isMondayOrTuesday(pickup.value)) {
+                    pickup.value = ''; // töröljük a választást
+                    pickup.classList.add('is-invalid');
+
+                    // felugró figyelmeztetés vagy inline
+                    const warning = document.getElementById('atvetelDayWarning');
+                    if (warning) warning.classList.remove('d-none');
+                } else {
+                    pickup.classList.remove('is-invalid');
+                    const warning = document.getElementById('atvetelDayWarning');
+                    if (warning) warning.classList.add('d-none');
+                }
+
+                // Frissítjük az idősávokat (ha már implementáltad)
+                if (typeof updatePickupSlots === 'function') updatePickupSlots();
+            }
+
+            pickup.addEventListener('change', validatePickupDate);
+        });
+
+
+
+
+        function showAlert(type, msg) {
+            const box = document.getElementById('alertBox');
+            box.className = 'alert alert-' + type; // reset + apply
+            box.textContent = msg;
+            box.classList.remove('d-none');
+            setTimeout(() => box.classList.add('d-none'), 4500);
+        }
+
+        // Serialize form values to a simple object with requested IDs as keys
+        function collectPayload() {
+            let torta = document.getElementById('torta_tipusa').value;
+            if (torta === 'egyeb') {
+                torta = document.getElementById('egyeb_torta_megnev').value.trim();
+            }
+
+            const payload = {
+                nev: document.getElementById('nev').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                telefonszam: document.getElementById('telefonszam').value.trim(),
+                rendeles_ideje: document.getElementById('rendeles_ideje').value,
+                atvetel_napja: document.getElementById('atvetel_napja').value,
+                atvetel_intervallum: document.getElementById('atvetel_intervallum').value,
+                torta_tipusa: torta,
+                szeletek_szama: document.getElementById('szeletek_szama').value,
+                szamgyerta: document.getElementById('szamgyerta').checked ? 'igen' : 'nem',
+                tuzijatek: document.getElementById('tuzijatek').checked ? 'igen' : 'nem',
+                tortadoboz: document.getElementById('tortadoboz').checked ? 'igen' : 'nem',
+                haccp: document.getElementById('haccp').checked ? 'igen' : 'nem',
+                afas_szamla: document.getElementById('afas_szamla').checked ? 'igen' : 'nem',
+                megjegyzes: document.getElementById('megjegyzes').value.trim()
+            };
+
+            // ➜ ide jön a számgyertya darabszám + számolt ár
+            collectSzamgyertyaToPayload(payload);
+            return payload;
+        }
+
+        async function fetchPricingData() {
+            try {
+                const response = await fetch(pricingSheetUrl);
+                const text = await response.text();
+                const data = JSON.parse(text.substring(47, text.length - 2));
+                const pricingTableBody = document.getElementById('pricing-table-body');
+                const rows = data.table.rows;
+
+                // Táblázat feltöltése (fejléc kihagyása)
+                rows.slice(1).forEach(row => {
+                    const name = row.c[0]?.v || 'N/A';
+                    const exemption = row.c[1]?.v || '';
+                    const price = row.c[2]?.v || 'N/A';
+                    const combinedName = exemption ? `${name} <span class="small-text">(${exemption})</span>` : name;
+
+                    const tableRow = `
+        <tr>
+          <td>${combinedName}</td>
+          <td>${price}</td>
+        </tr>
+      `;
+                    pricingTableBody.insertAdjacentHTML('beforeend', tableRow);
+                });
+
+                // ➜ ITT töltjük fel a legördülőt a „torták” neveivel
+                populateTortaTipusa(rows);
+
+            } catch (error) {
+                console.error('Error fetching pricing data:', error);
+                document.getElementById('pricing-table-body').innerHTML =
+                    '<tr><td colspan="2">Hiba történt az adatok betöltése közben.</td></tr>';
+
+                // Ha baj van, a selectben legyen egyértelmű fallback
+                const sel = document.getElementById('torta_tipusa');
+                if (sel) {
+                    sel.innerHTML = '';
+                    sel.insertAdjacentHTML('beforeend',
+                        '<option value="" selected disabled>Nem elérhető – próbáld frissíteni az oldalt</option>'
+                    );
+                    // és opcionálisan egy "Egyedi" opció, hogy ne akadjon el a rendelés
+                    const custom = document.createElement('option');
+                    custom.value = 'Egyedi';
+                    custom.textContent = 'Egyedi (megjegyzésben részletezem)';
+                    sel.appendChild(custom);
+                }
+            }
+        }
+
+
+        function populateTortaTipusa(rows) {
+            const sel = document.getElementById('torta_tipusa');
+            if (!sel) return;
+
+            const prev = sel.value;            // ha már volt választás, megpróbáljuk megtartani
+            sel.innerHTML = '';                // töröljük a korábbi opciókat
+            sel.insertAdjacentHTML('beforeend',
+                '<option value="" selected disabled>válasszon tortát…</option>'
+            );
+
+            // rows[0] a fejléc, ezért slice(1)
+            rows.slice(1).forEach(row => {
+                const name = row.c[0]?.v?.toString().trim();   // tortanév
+                const exemption = row.c[1]?.v?.toString().trim(); // pl. CM/GM jelölés
+                if (!name) return;
+
+                const label = exemption ? `${name} (${exemption})` : name;
+
+                const opt = document.createElement('option');
+                opt.value = name;         // értéknek a tiszta nevet tesszük
+                opt.textContent = label;  // felirat lehet bővebb (pl. jelölésekkel)
+                sel.appendChild(opt);
+            });
+
+            // Egyedi opció a lista végén
+            const custom = document.createElement('option');
+            custom.value = 'Egyedi';
+            custom.textContent = 'Egyedi (megjegyzésben részletezem)';
+            sel.appendChild(custom);
+
+            // visszaállítjuk az előző értéket, ha létezik az új listában
+            if ([...sel.options].some(o => o.value === prev)) {
+                sel.value = prev;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const tortaSelect = document.getElementById('torta_tipusa');
+            const egyebInput = document.getElementById('egyeb_torta_megnev');
+
+            tortaSelect.addEventListener('change', () => {
+                if (tortaSelect.value === 'egyeb') {
+                    egyebInput.classList.remove('d-none');
+                    egyebInput.required = true;
+                } else {
+                    egyebInput.classList.add('d-none');
+                    egyebInput.required = false;
+                    egyebInput.value = '';
+                }
+            });
+        });
+
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            setMinDates();
+
+            const form = document.getElementById('orderForm');
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // Bootstrap-like validation
+                if (!form.checkValidity()) {
+                    form.classList.add('was-validated');
+                    showAlert('warning', 'Kérjük, ellenőrizd a kiemelt mezőket.');
+                    return;
+                }
+
+                const data = collectPayload();
+                console.log('RENDELÉS:', data);
+
+                // OPTIONAL: send with EmailJS (set your template ID!)
+                try {
+                    // Replace 'template_rendeles' with your actual EmailJS template ID.
+                    await emailjs.send('service_063rd6q', 'template_rendeles', data);
+                    showAlert('success', 'Köszönjük! Rendelése beérkezett. Hamarosan felvesszük Önnel a kapcsolatot.');
+                    form.reset();
+                    form.classList.remove('was-validated');
+                    setMinDates(); // reset default datetime
+                } catch (err) {
+                    console.error('EmailJS hiba:', err);
+                    showAlert('info', 'Rendelés rögzítve a böngészőben, de az email küldése nem sikerült. Kérjük, hívd ezt a számot: 06-30/258 0495.');
+                }
+            });
+        });
+    </script>
+
+    <script>
+        function setNowForRendelesIdeje() {
+            const el = document.getElementById('rendeles_ideje');
+            if (!el) return;
+
+            const d = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const yyyy = d.getFullYear();
+            const mm = pad(d.getMonth() + 1);
+            const dd = pad(d.getDate());
+            const hh = pad(d.getHours());
+            const mi = pad(d.getMinutes());
+
+            // "datetime-local" formátum: YYYY-MM-DDTHH:MM (helyi idő!)
+            el.value = `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setNowForRendelesIdeje();
+
+            // Ha az űrlapod reseteli a mezőket, érdemes újra beállítani:
+            const form = document.getElementById('orderForm');
+            if (form) {
+                form.addEventListener('reset', () => {
+                    // egy kicsi késleltetés, hogy a reset lefusson
+                    setTimeout(setNowForRendelesIdeje, 0);
+                });
+            }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chk = document.getElementById('afas_szamla');
+            const box = document.getElementById('afas_adatok');
+            const ceg = document.getElementById('cegnev');
+            const cim = document.getElementById('ceg_cim');
+            const ado = document.getElementById('adoszam');
+
+            chk.addEventListener('change', () => {
+                if (chk.checked) {
+                    box.classList.remove('d-none');
+                    ceg.required = true;
+                    cim.required = true;
+                    ado.required = true;
+                } else {
+                    box.classList.add('d-none');
+                    ceg.required = false;
+                    cim.required = false;
+                    ado.required = false;
+                    ceg.value = '';
+                    cim.value = '';
+                    ado.value = '';
+                }
+            });
+        });
+    </script>
+
+    <script>
+// Ft -> egész szám (HUF)
+function toInt(n){ return (typeof n==='number' && isFinite(n)) ? Math.round(n) : 0; }
+
+// Már létező segédekből dolgozunk (TortaCatalog, szamgyertyaEgysegAr, tuzijatekAr, tortadobozAr, isRushPickup)
+function computeOrderAmounts(){
+  // 1) TORTA ára
+  const tortaSelectVal = document.getElementById('torta_tipusa').value;
+  const tortaNev = tortaSelectVal === 'egyeb'
+    ? (document.getElementById('egyeb_torta_megnev').value.trim() || 'Egyedi torta')
+    : tortaSelectVal;
+
+  const szeletek = Number(document.getElementById('szeletek_szama').value || 0);
+  let tortaKnown = false, tortaOssz = 0;
+
+  if (TortaCatalog[tortaNev] && [8,12,16].includes(szeletek)) {
+    const p = TortaCatalog[tortaNev].prices?.[szeletek];
+    if (typeof p === 'number') { tortaKnown = true; tortaOssz = toInt(p); }
+  }
+  // 24 szeletes & egyedi torta -> nem ismert
+
+  // 2) SZÁMGYERTYA
+  const gyOn = document.getElementById('szamgyerta').checked;
+  let szamgyertyaKnown = false, szamgyertyaOssz = 0;
+  if (gyOn) {
+    const raw = (document.getElementById('szamgyertya_szam').value || '').replace(/\D/g,'');
+    const db = raw.length;
+    if (db > 0 && (szamgyertyaEgysegAr || 0) > 0){
+      szamgyertyaKnown = true;
+      szamgyertyaOssz = toInt(db * (szamgyertyaEgysegAr || 0));
+    }
+  }
+
+  // 3) TŰZIJÁTÉK
+  const tuziOn = document.getElementById('tuzijatek').checked;
+  let tuziKnown = false, tuziOssz = 0;
+  if (tuziOn){
+    if ((tuzijatekAr || 0) > 0){ tuziKnown = true; tuziOssz = toInt(tuzijatekAr); }
+  }
+
+  // 4) TORTADOBOZ
+  const dobozOn = document.getElementById('tortadoboz').checked;
+  let dobozKnown = false, dobozOssz = 0;
+  if (dobozOn){
+    if ((tortadobozAr || 0) > 0){ dobozKnown = true; dobozOssz = toInt(tortadobozAr); }
+  }
+
+  // 5) RÖVID HATÁRIDŐ
+  const rush = isRushPickup(); // true/false
+  // A felár mértéke üzleti szabálytól függ -> ha nincs ismert összeg, üresen hagyjuk
+  const rushFelar = ''; // ha lesz konkrét összeged, ide töltsd majd be (számként), és a számítás logika automatikusan kezeli
+
+  // 6) RÉSZÖSSZEG (csak ismert tételek)
+  const reszosszegIsmertek = toInt(
+      (tortaKnown ? tortaOssz : 0) +
+      (szamgyertyaKnown ? szamgyertyaOssz : 0) +
+      (tuziKnown ? tuziOssz : 0) +
+      (dobozKnown ? dobozOssz : 0)
+  );
+
+  // 7) VÉGÖSSZEG – csak ha minden ismert:
+  // - tortaKnown
+  // - minden bejelölt kiegészítő ára ismert
+  // - NINCS rövid határidő, VAGY van ismert rovid_hataridos_felar_HUF (szám)
+  const extrasKnown =
+    (!gyOn || szamgyertyaKnown) &&
+    (!tuziOn || tuziKnown) &&
+    (!dobozOn || dobozKnown);
+
+  let vegosszeg = '';
+  if (tortaKnown && extrasKnown){
+    if (!rush){
+      vegosszeg = String(reszosszegIsmertek);
+    } else if (typeof rushFelar === 'number' && isFinite(rushFelar) && rushFelar >= 0){
+      vegosszeg = String(reszosszegIsmertek + rushFelar);
+    } // különben üres marad
+  }
+
+  return {
+    torta_ossz_HUF: tortaKnown ? String(tortaOssz) : '',
+    szamgyertya_ossz_HUF: szamgyertyaKnown ? String(szamgyertyaOssz) : '',
+    tuzijatek_ossz_HUF: tuziKnown ? String(tuziOssz) : '',
+    tortadoboz_ossz_HUF: dobozKnown ? String(dobozOssz) : '',
+    rovid_hataridos: rush ? 'igen' : 'nem',
+    rovid_hataridos_felar_HUF: (typeof rushFelar === 'number' && isFinite(rushFelar)) ? String(rushFelar) : '',
+    reszosszeg_ismertek_HUF: reszosszegIsmertek ? String(reszosszegIsmertek) : '',
+    vegosszeg_HUF: vegosszeg
+  };
+}
+</script>
+
+
+
+    <script>
+        function setupAtvetelValidation() {
+            const atvetelInput = document.getElementById('atvetel_napja');
+            const rendelInput = document.getElementById('rendeles_ideje');
+            const warning = document.getElementById('urgencyWarning');
+
+            function pad(n) { return String(n).padStart(2, '0'); }
+
+            function updateMinDate() {
+                const baseDate = new Date(); // rendelés ideje (ha readonly, ez ok)
+                const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 2);
+                const yyyy = d.getFullYear();
+                const mm = pad(d.getMonth() + 1);
+                const dd = pad(d.getDate());
+                atvetelInput.min = `${yyyy}-${mm}-${dd}`;
+            }
+
+            function checkUrgency() {
+                if (!atvetelInput.value) return;
+                const today = new Date();
+                const pickup = new Date(atvetelInput.value);
+                const diffDays = Math.ceil((pickup - today) / (1000 * 60 * 60 * 24));
+
+                if (diffDays < 5) {
+                    warning.classList.remove('d-none');
+                } else {
+                    warning.classList.add('d-none');
+                }
+            }
+
+            // Init
+            updateMinDate();
+            atvetelInput.addEventListener('change', checkUrgency);
+        }
+
+        // Run when page loads
+        document.addEventListener('DOMContentLoaded', setupAtvetelValidation);
+    </script>
+
+
+    <script>
+        // --- Kiegészítő árak (A2: számgyertya egységár, C2: tűzijáték ár) ---
+        const kiegeszitoArakUrl =
+            'https://docs.google.com/spreadsheets/d/1QZOUq7eYXNSwd3CkgJmQMCGrDCxqQ7FO2RmozPnQWkM/gviz/tq?sheet=kiegeszito_arak&tqx=out:json';
+
+        // --- Kiegészítő árak (A2: számgyertya, B2: tortadoboz, C2: tűzijáték) ---
+        let szamgyertyaEgysegAr = 0;
+        let tortadobozAr = 0;      // <-- ÚJ
+        let tuzijatekAr = 0;
+
+        function toNumberLikeFt(v) {
+            if (v == null) return 0;
+            // minden nem számjegyet kidobunk (pont, szóköz, „Ft”, „,-” stb.)
+            const n = String(v).replace(/[^\d]/g, '');
+            return Number(n) || 0;
+        }
+
+        async function fetchKiegeszitoArak() {
+            try {
+                const res = await fetch(kiegeszitoArakUrl);
+                const text = await res.text();
+                const data = JSON.parse(text.substring(47, text.length - 2));
+                const rows = data.table?.rows || [];
+                const r0 = rows[0] || {}; // A2/B2/C2
+
+                // A2 -> számgyertya egységár
+                szamgyertyaEgysegAr = toNumberLikeFt(r0.c?.[0]?.v);
+                const egys = document.getElementById('szamgyertya_egysegar');
+                if (egys) egys.textContent = szamgyertyaEgysegAr ? `${szamgyertyaEgysegAr} Ft / db` : 'N/A';
+
+                // B2 -> tortadoboz ár  ----------------------  ÚJ
+                tortadobozAr = toNumberLikeFt(r0.c?.[1]?.v);
+                const doboz = document.getElementById('tortadoboz_ar');
+                if (doboz) doboz.textContent = tortadobozAr ? `(${new Intl.NumberFormat('hu-HU').format(tortadobozAr)} Ft)` : '';
+
+                // C2 -> tűzijáték ár
+                tuzijatekAr = toNumberLikeFt(r0.c?.[2]?.v);
+                const tuzi = document.getElementById('tuzijatek_ar');
+                if (tuzi) tuzi.textContent = tuzijatekAr ? `(${new Intl.NumberFormat('hu-HU').format(tuzijatekAr)} Ft)` : '';
+            } catch (e) {
+                console.error('Kiegészítő árak lekérési hiba:', e);
+            }
+        }
+
+
+
+        function setupSzamgyertyaUI() {
+            const chk = document.getElementById('szamgyerta');
+            const wrap = document.getElementById('szamgyertya_mennyiseg_wrapper');
+            const inp = document.getElementById('szamgyertya_szam');
+            const out = document.getElementById('szamgyertya_ar');
+            const note = document.getElementById('szamgyertya_reszletek');
+
+            function recalc() {
+                const unit = szamgyertyaEgysegAr || 0;
+                const cleaned = (inp.value || '').replace(/\D/g, ''); // csak számjegyek
+                const digits = cleaned.length;
+                const total = digits * unit;
+
+                out.textContent = total > 0 ? `${total} Ft` : '0 Ft';
+                note.textContent = digits > 0 ? ` (${digits} db × ${unit} Ft)` : '';
+            }
+
+            chk.addEventListener('change', () => {
+                if (chk.checked) {
+                    wrap.classList.remove('d-none');
+                    inp.focus();
+                    recalc();
+                } else {
+                    wrap.classList.add('d-none');
+                    inp.value = '';
+                    out.textContent = '0 Ft';
+                    note.textContent = '';
+                }
+            });
+
+            inp.addEventListener('input', recalc);
+        }
+
+
+        // Ha az űrlap payloadját gyűjtöd, érdemes ezt is beírni:
+        function collectSzamgyertyaToPayload(payload) {
+            const chk = document.getElementById('szamgyerta');
+            const val = document.getElementById('szamgyertya_szam')?.value || '';
+            const unit = szamgyertyaEgysegAr || 0;
+            const digits = val.replace(/\D/g, '').length;
+            const total = digits * unit;
+
+            if (chk.checked && digits > 0) {
+                payload.szamgyertya_szam = val.trim();           // pl. "32"
+                payload.szamgyertya_db = String(digits);       // pl. "2"
+                payload.szamgyertya_ar = `${total} Ft`;        // pl. "2*egységár Ft"
+                payload.szamgyertya_egysegar = `${unit} Ft / db`;
+            } else {
+                payload.szamgyertya_szam = '';
+                payload.szamgyertya_db = '0';
+                payload.szamgyertya_ar = '0 Ft';
+                payload.szamgyertya_egysegar = `${unit} Ft / db`;
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchKiegeszitoArak();   // <-- EZT hívd a régi fetchSzamgyertyaAr() helyett
+            setupSzamgyertyaUI();
+        });
+    </script>
+
+    <script>
+        // Segéd: opciók újratöltése
+        function fillTimeOptions(selectEl, slots) {
+            selectEl.innerHTML = '';
+            const ph = document.createElement('option');
+            ph.value = '';
+            ph.disabled = true;
+            ph.selected = true;
+            ph.textContent = 'Válasszon idősávot…';
+            selectEl.appendChild(ph);
+
+            slots.forEach(range => {
+                const opt = document.createElement('option');
+                opt.value = range;
+                opt.textContent = range;
+                selectEl.appendChild(opt);
+            });
+        }
+
+        // Nap alapján visszaadja a 2 órás idősávokat
+        // Hétfő–Péntek: 12–14, 14–16, 16–18
+        // Szombat: 10–12, 12–14, 14–16, 16–18
+        // Vasárnap: 10–12, 12–14, 14–16
+        function getSlotsForDate(dateStr) {
+            if (!dateStr) return [];
+            const d = new Date(dateStr + 'T00:00:00'); // helyi idő
+            const day = d.getDay(); // 0=vasárnap, 6=szombat
+
+            if (day === 6) { // szombat
+                return ['10:00–12:00', '12:00–14:00', '14:00–16:00', '16:00–18:00'];
+            } else if (day === 0) { // vasárnap
+                return ['10:00–12:00', '12:00–14:00', '14:00–16:00'];
+            } else { // hétköznap
+                return ['12:00–14:00', '14:00–16:00', '16:00–18:00'];
+            }
+        }
+
+        // Fő: idősávok frissítése a dátum alapján
+        function updatePickupSlots() {
+            const dateEl = document.getElementById('atvetel_napja');
+            const slotEl = document.getElementById('atvetel_intervallum');
+            const dateVal = dateEl ? dateEl.value : '';
+
+            if (!slotEl) return;
+
+            if (!dateVal) {
+                // nincs dátum: tiltjuk a selectet
+                fillTimeOptions(slotEl, []);
+                slotEl.disabled = true;
+                return;
+            }
+
+            const slots = getSlotsForDate(dateVal);
+            fillTimeOptions(slotEl, slots);
+            slotEl.disabled = slots.length === 0;
+        }
+
+        // Események bekötése
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateEl = document.getElementById('atvetel_napja');
+            if (dateEl) {
+                dateEl.addEventListener('change', updatePickupSlots);
+                // ha már van érték (pl. visszatöltéskor), azonnal frissítünk
+                if (dateEl.value) updatePickupSlots();
+            }
+        });
+    </script>
+
+
+
+    <div class="modal fade" id="summaryModal" tabindex="-1" role="dialog" aria-labelledby="summaryTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="summaryTitle" class="modal-title">Rendelés összesítő</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Bezárás">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <h6 class="mb-2">Ügyfél adatok</h6>
+                    <div id="summaryCustomer" class="mb-3 small"></div>
+
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Tételes összesítő</h6>
+                            <span class="badge badge-pill badge-secondary" id="summaryCount">0 tétel</span>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped align-middle mb-0 stacked-table">
+                                <thead class="thead-light sticky-top">
+                                    <tr>
+                                        <th style="min-width: 180px;">Tétel</th>
+                                        <th class="text-nowrap d-none d-sm-table-cell">Menny.</th>
+                                        <th class="d-none d-sm-table-cell">Egységár</th>
+                                        <th class="d-none d-sm-table-cell">Összeg</th>
+                                        <th class="d-none d-sm-table-cell">Megjegyzés</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="summaryLines">
+                                    <!-- your JS keeps inserting <tr> rows here -->
+                                    <!-- For better mobile labels, add data-label attributes on each <td> when you render -->
+                                    <!-- e.g. <td data-label="Menny.">2 db</td> -->
+                                </tbody>
+
+                                <tfoot class="bg-light">
+                                    <tr>
+                                        <th class="text-right text-sm-right" colspan="3">Részösszeg (csak ismert
+                                            tételek):</th>
+                                        <th id="summarySubtotal" class="text-sm-right font-weight-bold">0 Ft</th>
+                                        <th class="d-none d-sm-table-cell"></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+
+
+                        </div>
+
+                    </div>
+<!-- Igények (HACCP, Áfás számla) külön szekció -->
+<div class="card border-0 shadow-sm mt-4 d-none" id="summaryRequestsWrap">
+  <div class="card-header bg-light">
+    <h6 class="mb-0">Egyéb igények</h6>
+  </div>
+  <div class="card-body py-2">
+    <ul id="summaryRequests" class="list-group list-group-flush">
+      <!-- JS tölti fel, ha van jelölve -->
+    </ul>
+  </div>
+</div>
+
+
+
+                    <div id="summaryNotes" class="small text-muted"></div>
+                </div>
+<div class="modal-footer d-flex justify-content-between">
+  <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Még módosítom</button>
+  <button type="button" class="btn btn-cream px-4" id="btnPlaceOrder">Rendelés leadása</button>
+</div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // formázó
+function fmtFt(n) {
+  if (typeof n !== 'number' || isNaN(n)) return '—';
+  return new Intl.NumberFormat('hu-HU').format(n) + ' Ft';
+}
+
+// torta alapár kinyerése (ha van)
+function getCakePriceIfAny(tortaNev, szeletek) {
+  const item = TortaCatalog[tortaNev];
+  if (!item) return { known: false, price: 0, note: 'Egyedi torta (nincs a listában)' };
+  if (szeletek === 24) return { known: false, price: 0, note: '24 szelet: egyedi árazás' };
+  const p = item.prices?.[szeletek];
+  if (typeof p === 'number') return { known: true, price: p, note: '' };
+  return { known: false, price: 0, note: 'Ehhez a szeletszámhoz nincs beárazva' };
+}
+
+// rövid határidő (5 napon belül) – csak jelzés, ár nélkül
+function isRushPickup() {
+  const val = document.getElementById('atvetel_napja').value;
+  if (!val) return false;
+  const pickup = new Date(val);
+  const today = new Date();
+  const diffDays = Math.ceil((pickup - today) / (1000 * 60 * 60 * 24));
+  return diffDays < 5;
+}
+
+// összeg gyűjtése és modal kirajzolása
+function openSummaryModal() {
+  const payload = collectPayload();
+  const linesTbody = document.getElementById('summaryLines');
+  const customerBox = document.getElementById('summaryCustomer');
+  const subtotalEl = document.getElementById('summarySubtotal');
+  const notesBox = document.getElementById('summaryNotes');
+  const countBadge = document.getElementById('summaryCount');
+
+  // ÚJ: igények konténerek
+  const reqWrap = document.getElementById('summaryRequestsWrap');
+  const reqList = document.getElementById('summaryRequests');        // ha listát használsz
+  const reqBadges = document.getElementById('summaryRequestsBadges'); // ha badge-es változat
+
+  // ügyfél blokk
+  customerBox.innerHTML = `
+    <div><strong>Név:</strong> ${payload.nev || '—'}</div>
+    <div><strong>Email:</strong> ${payload.email || '—'}</div>
+    <div><strong>Telefon:</strong> ${payload.telefonszam || '—'}</div>
+    <div><strong>Átvétel:</strong> ${payload.atvetel_napja || '—'} ${payload.atvetel_intervallum ? '(' + payload.atvetel_intervallum + ')' : ''}</div>
+  `;
+
+  // tételsorok
+  linesTbody.innerHTML = '';
+  let knownSubtotal = 0;
+  let lineCount = 0;
+  const addLine = (name, qty, unitPrice, total, note) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${name}</td>
+      <td class="text-nowrap">${qty || '—'}</td>
+      <td>${(typeof unitPrice === 'number' && !isNaN(unitPrice)) ? fmtFt(unitPrice) : '—'}</td>
+      <td>${(typeof total === 'number' && !isNaN(total)) ? fmtFt(total) : '—'}</td>
+      <td>${note || ''}</td>
+    `;
+    linesTbody.appendChild(tr);
+    if (typeof total === 'number' && !isNaN(total)) knownSubtotal += total;
+    lineCount++;
+  };
+
+  // 1) Torta (alap)
+  const tortaNev = document.getElementById('torta_tipusa').value === 'egyeb'
+    ? (document.getElementById('egyeb_torta_megnev').value.trim() || 'Egyedi torta')
+    : document.getElementById('torta_tipusa').value;
+
+  const szeletek = Number(document.getElementById('szeletek_szama').value || 0);
+  let cakeNoteExtra = '';
+  if (TortaCatalog[tortaNev]?.badge) cakeNoteExtra = `Mentességek: ${TortaCatalog[tortaNev].badge}`;
+
+  const cake = getCakePriceIfAny(tortaNev, szeletek);
+  addLine(
+    `Torta – ${tortaNev}`,
+    szeletek ? `${szeletek} szelet` : '—',
+    cake.known ? cake.price : null,
+    cake.known ? cake.price : null,
+    cake.known ? cakeNoteExtra : (cakeNoteExtra ? (cake.note + ' | ' + cakeNoteExtra) : cake.note)
+  );
+
+  // 2) Számgyertya
+  const gyChk = document.getElementById('szamgyerta').checked;
+  if (gyChk) {
+    const raw = (document.getElementById('szamgyertya_szam').value || '').replace(/\D/g, '');
+    const db = raw.length;            // számjegyek száma
+    const unit = szamgyertyaEgysegAr || 0;
+    const total = db * unit;
+    addLine('Számgyertya', db || '—', unit || null, (db && unit) ? total : null, raw ? `(${raw})` : '');
+  }
+
+  // 3) Tűzijáték
+  if (document.getElementById('tuzijatek').checked) {
+    const unit = tuzijatekAr || 0;
+    addLine('Tűzijáték', 1, unit || null, unit || null, unit ? '' : 'Egyedi árazás');
+  }
+
+  // 4) Tortadoboz
+  if (document.getElementById('tortadoboz').checked) {
+    const unit = tortadobozAr || 0;
+    addLine('Tortadoboz', 1, unit || null, unit || null, unit ? '' : 'Egyedi árazás');
+  }
+
+  // --- HÁTTÉRBEN: „igények” külön szekcióban (NEM a táblázatban!) ---
+  const requests = [];
+  if (document.getElementById('haccp').checked) {
+    requests.push({ label: 'HACCP igazolás', note: 'Igényelve (díjmentes)' });
+  }
+  if (document.getElementById('afas_szamla').checked) {
+    requests.push({ label: 'Áfás számla', note: 'Igényelve (díjmentes)' });
+  }
+
+  // igények kirajzolása (VÁLASSZ EGYET a kettő közül):
+  // 1) LISTÁS változat:
+  if (reqWrap && (reqList || reqBadges)) {
+    if (requests.length > 0) {
+      reqWrap.classList.remove('d-none');
+
+      if (reqList) {
+        reqList.innerHTML = '';
+        requests.forEach(r => {
+          const li = document.createElement('li');
+          li.className = 'list-group-item d-flex justify-content-between align-items-center';
+          li.innerHTML = `
+            <span>${r.label}</span>
+            <span class="badge badge-success badge-pill">${r.note}</span>
+          `;
+          reqList.appendChild(li);
+        });
+      }
+
+      // 2) BADGE-es változat (ha ezt akarod, a fenti reqList részt töröld ki):
+      if (reqBadges) {
+        reqBadges.innerHTML = requests.map(r =>
+          `<span class="badge badge-success mr-2 mb-2">${r.label}: ${r.note}</span>`
+        ).join('');
+      }
+
+    } else {
+      reqWrap.classList.add('d-none');
+      if (reqList) reqList.innerHTML = '';
+      if (reqBadges) reqBadges.innerHTML = '';
+    }
+  }
+
+  // Részösszeg (csak ismert tételek)
+  subtotalEl.textContent = fmtFt(knownSubtotal);
+
+  // Tételszám badge (a táblázat soraiból, HACCP/Áfás nélkül)
+  if (countBadge) countBadge.textContent = `${lineCount} tétel`;
+
+  // Megjegyzések
+  const unknownBits = [];
+  if (!cake.known) unknownBits.push('A torta árát egyeztetés után határozzuk meg.');
+  if (isRushPickup()) unknownBits.push('A rövid határidős felár mértéke egyeztetés tárgya.');
+  notesBox.innerHTML = unknownBits.length
+    ? `<div class="mt-2"><strong>Megjegyzések:</strong><br>${unknownBits.map(x => `• ${x}`).join('<br>')}</div>`
+    : '';
+
+  // mutatás
+  $('#summaryModal').modal('show');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('btnSummary');
+  if (btn) btn.addEventListener('click', openSummaryModal);
+});
+
+    </script>
+
+
+
+
+</body>
+
+</html>

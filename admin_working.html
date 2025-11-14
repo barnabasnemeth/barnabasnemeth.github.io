@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Créme's Dessert — Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap 4 (ugyanaz, mint a rendelés oldalon) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+        /* inline, minimál kiegészítés */
+        body {
+            background: #FDF7E4;
+            color: #322C2B;
+            font-family: "Besley", serif;
+        }
+
+        .card {
+            border-radius: 14px;
+            border: 1px solid #efeadf;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .06);
+        }
+
+        .badge-status {
+            font-weight: 700;
+            border-radius: 999px;
+            padding: .35rem .6rem;
+        }
+
+        /* Soft cream background */
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #FDF7E4 !important;
+        }
+
+        /* Even rows a bit lighter */
+        .table-striped tbody tr:nth-of-type(even) {
+            background-color: #FFFDF8 !important;
+        }
+
+        /* Hover tone */
+        .table-hover tbody tr:hover {
+            background-color: #F6E9D3 !important;
+            transition: background 0.15s;
+        }
+
+        /* Header styling */
+        .thead-light th {
+            background-color: #F2D5A6 !important;
+            color: #3A2F2A !important;
+            font-weight: 600;
+        }
+
+        /* Borders softer */
+        .table,
+        .table td,
+        .table th {
+            border-color: #E6DCCB !important;
+        }
+
+        /* Round card feel */
+        .table {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+
+
+        .table thead th {
+            white-space: nowrap;
+        }
+
+        td div {
+            line-height: 1.25;
+        }
+
+        .small.text-muted i {
+            opacity: 0.7;
+            margin-right: 3px;
+        }
+
+        td select.form-control-sm {
+            padding: 2px 6px;
+            font-size: 0.8rem;
+        }
+
+        .note-wrap {
+            white-space: pre-wrap;
+            /* keep \n line breaks */
+            word-break: break-word;
+            /* break long words */
+            overflow-wrap: anywhere;
+            /* force-break super-long tokens */
+        }
+
+
+
+        .search-input {
+            max-width: 260px;
+        }
+
+        .sticky-actions {
+            position: sticky;
+            right: 0;
+            background: #fff;
+        }
+
+        .badge-paid {
+            font-weight: 700;
+        }
+
+        .cursor {
+            cursor: pointer;
+        }
+
+        /* Teljesen lezárt (átvéve + fizetve) rendelés */
+        /* Teljesen lezárt (átvéve + fizetve) rendelés – stripe fölött is érvényesüljön */
+        .table-striped tbody tr.row-complete {
+            background-color: #d4edda !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid py-4" style="max-width:95vw;">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h3 class="mb-0">Rendelések (Admin)</h3>
+            <div class="d-flex align-items-center">
+                <input id="searchBox" class="form-control form-control-sm mr-2 search-input"
+                    placeholder="Keresés név/email/torta...">
+                <select id="statusFilter" class="form-control form-control-sm mr-2">
+                    <option value="">Összes státusz</option>
+                    <option>Új</option>
+                    <option>Folyamatban</option>
+                    <option>Elkészült</option>
+                    <option>Átvéve</option>
+                </select>
+                <select id="dateFilter" class="form-control form-control-sm mr-2">
+    <option value="">Összes időszak</option>
+    <option value="7">Elmúlt 7 nap</option>
+    <option value="14">Elmúlt 14 nap</option>
+    <option value="30">Elmúlt 30 nap</option>
+</select>
+
+                <select id="paidFilter" class="form-control form-control-sm">
+                    <option value="">Fizetve: mind</option>
+                    <option value="igen">Fizetve: igen</option>
+                    <option value="nem">Fizetve: nem</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="alert" class="alert d-none" role="alert"></div>
+
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped border rounded shadow-sm">
+                    <colgroup>
+                        <col style="width:48px;"> <!-- # -->
+                        <col style="min-width:120px;"> <!-- Rendelés ideje -->
+                        <col style="min-width:120px;"> <!-- Ügyfél -->
+                        <col style="min-width:50px;"> <!-- Átvétel -->
+                        <col style="min-width:80px;"> <!-- Torta -->
+                        <col style="min-width:120px;"> <!-- Extrák -->
+                        <col style="min-width:160px;"> <!-- HACCP / Áfás -->
+                        <col style="min-width:160px;"> <!-- Ár összefoglaló -->
+                        <col style="min-width:160px;"> <!-- Státusz -->
+                        <col style="min-width:80px;"> <!-- Fizetés -->
+                        <col style="min-width:160px;"> <!-- Megjegyzés -->
+                        <col style="width:90px;"> <!-- Művelet -->
+                    </colgroup>
+                    <thead class="thead-light">
+                        <tr class="text-nowrap">
+                            <th>#</th>
+                            <th>Rendelés ideje</th>
+                            <th>Ügyfél</th>
+                            <th>Átvétel</th>
+                            <th>Torta</th>
+                            <th>Extrák</th>
+                            <th>HACCP / Áfás</th>
+                            <th>Árak</th>
+                            <th>Státusz</th>
+                            <th>Fizetve</th>
+                            <th>Megjegyzés</th>
+                            <th class="text-right">Művelet</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersBody">
+                        <!--
+          Row rendering stays in JS. Suggested cell contents per column:
+
+          #         -> r.sorszam
+          Ügyfél    -> <strong>{r.nev}</strong> · {r.email} · {r.telefonszám}
+          Átvétel   -> {YYYY-MM-DD} | {idősáv}
+          Torta     -> {torta_tipusa} · {szeletek_szama} szelet · {allergia_erzekenyseg || '—'}
+          Extrák    -> Gyertya: {igen/nem}{opt ' ('+r.szamgyertya_tipus+')'} · {szamgyertya_ossz_HUF Ft}
+                       · Tűzijáték: {igen/nem} · {tuzijatek_ossz_HUF Ft}
+                       · Doboz: {igen/nem} · {tortadoboz_ossz_HUF Ft}
+          HACCP/Áfás-> HACCP: {igen/nem} · ÁFA: {igen/nem}{opt ' ('+cegnev+')'}
+          Árak      -> Torta: {torta_ossz_HUF Ft} · Rövid ht.: {rovid_hataridos ? rovid_hataridos_felar_HUF+' Ft' : '0 Ft'}
+                       · Rész: {reszosszeg_ismertek_HUF Ft} · Vég: {vegosszeg_HUF Ft || számolt}
+          Státusz   -> {badgeStatus(r.statusz)} · {badgePaid(r.fizetve)}
+          Megjegyzés-> {r.megjegyzes rövidítve}
+          Művelet   -> Edit button (marad)
+        -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Edit modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><span id="modalTitle">Rendelés szerkesztése</span></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Bezárás">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="editForm">
+                        <input type="hidden" id="m_sorszam">
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Név</label>
+                                <input id="m_nev" class="form-control">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Email</label>
+                                <input id="m_email" class="form-control" type="email">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Telefonszám</label>
+                                <input id="m_telefonszam" class="form-control">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Átvétel napja</label>
+                                <input id="m_atvetel_napja" class="form-control" type="date">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Átvétel idősáv</label>
+                                <input id="m_atvetel_intervallum" class="form-control" placeholder="pl. 12:00–14:00">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Torta típusa</label>
+                                <input id="m_torta_tipusa" class="form-control">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Szeletek száma</label>
+                                <input id="m_szeletek_szama" class="form-control" type="number" min="0" step="1">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Allergia érzékenység</label>
+                                <input id="m_allergia" class="form-control" placeholder="pl. CM/GM">
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label>Számgyertya (igen/nem)</label>
+                                <input id="m_szamgyerta" class="form-control" placeholder="igen/nem">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Számgyertya típus (pl. 32)</label>
+                                <input id="m_szamgyertya_tipus" class="form-control">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Tűzijáték (igen/nem)</label>
+                                <input id="m_tuzijatek" class="form-control" placeholder="igen/nem">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Tortadoboz (igen/nem)</label>
+                                <input id="m_tortadoboz" class="form-control" placeholder="igen/nem">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label>HACCP (igen/nem)</label>
+                                <input id="m_haccp" class="form-control" placeholder="igen/nem">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Áfás számla (igen/nem)</label>
+                                <input id="m_afas" class="form-control" placeholder="igen/nem">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Áfás számla adatok (JSON)</label>
+                                <input id="m_afas_adatok" class="form-control"
+                                    placeholder='{"cegnev":"","cim":"","adoszam":""}'>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label>Torta össz. (HUF)</label>
+                                <input id="m_torta_ossz" class="form-control" type="number" min="0" step="1">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Számgyertya össz. (HUF)</label>
+                                <input id="m_szg_ossz" class="form-control" type="number" min="0" step="1">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Tűzijáték össz. (HUF)</label>
+                                <input id="m_tuzi_ossz" class="form-control" type="number" min="0" step="1">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Tortadoboz össz. (HUF)</label>
+                                <input id="m_doboz_ossz" class="form-control" type="number" min="0" step="1">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label>Rövid határidős (igen/nem)</label>
+                                <input id="m_rovid" class="form-control" placeholder="igen/nem">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Rövid határidős felár (HUF)</label>
+                                <input id="m_rovid_felar" class="form-control" type="number" min="0" step="1">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Részösszeg ismert (HUF)</label>
+                                <input id="m_reszosszeg" class="form-control" type="number" min="0" step="1">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Végösszeg (HUF)</label>
+                                <input id="m_vegosszeg" class="form-control" type="number" min="0" step="1">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+
+                            <div class="form-group col-md-4">
+                                <label>Rendelés ideje</label>
+                                <input id="m_rendeles_ideje" class="form-control" type="datetime-local" step="60">
+                            </div>
+
+                        </div>
+
+                        <div class="form-group">
+                            <label>Megjegyzés</label>
+                            <textarea id="m_megjegyzes" class="form-control" rows="3"></textarea>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal">Még módosítom</button>
+                    <button id="btnSave" class="btn btn-primary">Mentés</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Állítsd a saját, telepített Web App URL-re (Deploy -> New Deployment)
+        const GAS_URL = 'https://cremesdesszert-proxy.nemethhaz.workers.dev';
+
+        const state = { rows: [], filtered: [] };
+
+        const HUF = n => (n && !isNaN(n)) ? new Intl.NumberFormat('hu-HU').format(Number(n)) + ' Ft' : '';
+
+        function badgeStatus(s) {
+            const map = {
+                'Új': 'badge badge-status badge-warning',
+                'Folyamatban': 'badge badge-status badge-info',
+                'Elkészült': 'badge badge-status badge-primary',
+                'Átvéve': 'badge badge-status badge-success'
+            };
+            const cls = map[s] || 'badge badge-status badge-secondary';
+            return `<span class="${cls}">${s || '—'}</span>`;
+        }
+
+        function badgePaid(v) {
+            const yes = String(v || '').toLowerCase() === 'igen';
+            return `<span class="badge badge-paid ${yes ? 'badge-success' : 'badge-danger'}">${yes ? 'igen' : 'nem'}</span>`;
+        }
+
+        function showAlert(type, msg) {
+            const a = document.getElementById('alert');
+            a.className = 'alert alert-' + type;
+            a.textContent = msg;
+            a.classList.remove('d-none');
+            setTimeout(() => a.classList.add('d-none'), 3500);
+        }
+
+        async function fetchOrders() {
+            const url = GAS_URL + '?action=list';
+            const res = await fetch(url, { method: 'GET' });
+            if (!res.ok) { showAlert('danger', 'Lista lekérése sikertelen'); return; }
+            const data = await res.json();
+            state.rows = Array.isArray(data) ? data : [];
+            applyFilters();
+        }
+
+        function applyFilters() {
+    const q = document.getElementById('searchBox').value.toLowerCase().trim();
+    const st = document.getElementById('statusFilter').value;
+    const paid = document.getElementById('paidFilter').value;
+const dateFilter = document.getElementById('dateFilter')?.value || '';
+
+    state.filtered = state.rows.filter(r => {
+        // kereső
+        const hay = [
+            r.nev, r.email, r.torta_tipusa, r.sorszam
+        ].map(x => String(x || '').toLowerCase()).join(' ');
+        if (q && !hay.includes(q)) return false;
+
+        // státusz
+        if (st && r.statusz !== st) return false;
+
+        // fizetve
+        if (paid) {
+            const f = String(r.fizetve || '').trim().toLowerCase();
+            if (paid === 'igen') {
+                if (f !== 'igen') return false;      // csak az igent engedjük
+            } else if (paid === 'nem') {
+                if (f === 'igen') return false;      // minden, ami nem "igen", maradjon
+            }
+        }
+
+        // dátumfilter (erről lentebb)
+if (dateFilter) {
+    const days = parseInt(dateFilter, 10);
+    if (!isWithinLastDays(r.rendeles_ideje, days)) return false;
+}
+
+        return true;
+    });
+
+    // rendezés maradhat
+    state.filtered.sort((a, b) => {
+        const da = parseDateTime(a.rendeles_ideje);
+        const db = parseDateTime(b.rendeles_ideje);
+
+        if (!da && !db) return 0;
+        if (!da) return 1;
+        if (!db) return -1;
+        return db - da;
+    });
+
+    renderTable();
+}
+
+function isWithinLastDays(v, days) {
+    const d = parseDateTime(v);
+    if (!d) return false;
+    const now = new Date();
+    const diffMs = now - d;
+    const rangeMs = days * 24 * 60 * 60 * 1000;
+    return diffMs >= 0 && diffMs <= rangeMs;
+}
+
+// Elmúlt 5 napban érkezett-e a rendelés? (badge-hez)
+function isRecentOrder(v) {
+    return isWithinLastDays(v, 5);
+}
+
+
+        function computeFinal(r) {
+            // ha minden pénzmező ki van töltve, mutassuk a végösszeget
+            const t = Number(r.torta_ossz_HUF || 0);
+            const g = Number(r.szamgyertya_ossz_HUF || 0);
+            const z = Number(r.tuzijatek_ossz_HUF || 0);
+            const d = Number(r.tortadoboz_ossz_HUF || 0);
+            const rf = Number(r.rovid_hataridos_felar_HUF || 0);
+
+            const hasAllMoney =
+                (r.torta_ossz_HUF !== '' && r.szamgyertya_ossz_HUF !== '' &&
+                    r.tuzijatek_ossz_HUF !== '' && r.tortadoboz_ossz_HUF !== '') &&
+                (String(r.rovid_hataridos || 'nem').toLowerCase() !== 'igen' || r.rovid_hataridos_felar_HUF !== '');
+
+            if (hasAllMoney) {
+                // ha a sheetben már számoltál vegösszeget, használjuk azt, különben számolunk
+                const v = r.vegosszeg_HUF !== '' ? Number(r.vegosszeg_HUF) : (t + g + z + d + rf);
+                return v;
+            }
+            return '';
+        }
+
+        // --- helpers for compact row rendering ---
+        function yn(v) {
+            const s = String(v || '').trim().toLowerCase();
+            return s === 'igen' ? 'igen' : (s === 'yes' ? 'igen' : 'nem');
+        }
+        function money(v) {
+            // uses your existing HUF() helper; falls back to '—'
+            if (v === '' || v === null || v === undefined) return '';
+            const n = Number(v);
+            return isNaN(n) ? '—' : HUF(n);
+        }
+        function toDateTime(v) {
+            if (!v) return '—';
+            const d = new Date(v);
+            if (isNaN(d)) return v;
+            return d.toISOString().slice(0, 16).replace('T', ' '); // "YYYY-MM-DD HH:MM"
+        }
+
+        function toDisplayDate(v) {
+            if (!v) return '—';
+            const d = new Date(v);
+            if (isNaN(d)) return String(v);           // already a text like '2025-11-04'
+            return d.toISOString().slice(0, 10);      // YYYY-MM-DD
+
+
+        }
+
+        // Egységes dátum-parsoló (kezeli a "YYYY-MM-DD HH:MM" és "YYYY-MM-DDTHH:MM" formátumot is)
+        function parseDateTime(v) {
+            if (!v) return null;
+            const s = String(v).trim().replace(' ', 'T');
+            const d = new Date(s);
+            return isNaN(d) ? null : d;
+        }
+
+        // Elmúlt 5 napban érkezett-e a rendelés?
+        function isRecentOrder(v) {
+            const d = parseDateTime(v);
+            if (!d) return false;
+            const now = new Date();
+            const diffMs = now - d; // most - rendelés
+            const fiveDaysMs = 5 * 24 * 60 * 60 * 1000;
+            return diffMs >= 0 && diffMs <= fiveDaysMs;
+        }
+
+        function truncate(s, len = 120) {
+            const t = String(s || '');
+            return t.length > len ? t.slice(0, len - 1) + '…' : t;
+        }
+        function parseAfasAdatok(raw) {
+            try { return raw ? JSON.parse(raw) : {}; } catch { return {}; }
+        }
+
+        // --- NEW renderer for the compact table ---
+        function renderTable() {
+            const tb = document.getElementById('ordersBody');
+            tb.innerHTML = '';
+
+            state.filtered.forEach(r => {
+                // compute final (you already have computeFinal; reuse it)
+                const final = computeFinal(r);
+
+                // Extras column (Gyertya / Tűzijáték / Doboz)
+                // Extras column (stacked layout)
+                const extras = `
+  <div><strong>Gyertya:</strong> ${yn(r.szamgyertya)}${yn(r.szamgyertya) === 'igen' && r.szamgyertya_tipus ? ' (' + r.szamgyertya_tipus + ')' : ''} · ${money(r.szamgyertya_ossz_HUF)}</div>
+  <div><strong>Tűzijáték:</strong> ${yn(r.tuzijatek)} · ${money(r.tuzijatek_ossz_HUF)}</div>
+  <div><strong>Doboz:</strong> ${yn(r.tortadoboz)} · ${money(r.tortadoboz_ossz_HUF)}</div>
+`;
+
+
+                // HACCP / ÁFA column (stacked, detailed)
+                const af = parseAfasAdatok(r.afas_szamla_adatok);
+                const haccpAfa = `
+  <div><strong>HACCP:</strong> ${yn(r.haccp)}</div>
+  <div><strong>ÁFA számla:</strong> ${yn(r.afas_szamla)}</div>
+  ${af.cegnev ? `<div class="small text-muted">${af.cegnev}</div>` : ''}
+  ${af.cim ? `<div class="small text-muted">${af.cim}</div>` : ''}
+  ${af.adoszam ? `<div class="small text-muted">Adószám: ${af.adoszam}</div>` : ''}
+`;
+
+
+                // Ár összefoglaló column
+                // Price summary (stacked layout + include extras total)
+                const torta = Number(r.torta_ossz_HUF || 0);
+                const gyertya = Number(r.szamgyertya_ossz_HUF || 0);
+                const tuzi = Number(r.tuzijatek_ossz_HUF || 0);
+                const doboz = Number(r.tortadoboz_ossz_HUF || 0);
+                const rovidFelarNum = Number(r.rovid_hataridos_felar_HUF || 0);
+
+                // total of *just* extras (gyertya + tűzijáték + doboz)
+                const extrasTotal = gyertya + tuzi + doboz;
+
+                const rovidFelar = yn(r.rovid_hataridos) === 'igen'
+                    ? money(rovidFelarNum)
+                    : '0 Ft';
+
+                const prices = `
+  <div><strong>Torta:</strong> ${money(torta)}</div>
+  <div><strong>Extrák összesen:</strong> ${money(extrasTotal)}</div>
+  <div><strong>Rövid határidő:</strong> ${rovidFelar}</div>
+  <div><strong>Részösszeg:</strong> ${money(r.reszosszeg_ismertek_HUF)}</div>
+  <div><strong>Végösszeg:</strong> ${final === '' ? '—' : HUF(final)}</div>
+`;
+
+
+// One row, all inline
+const tr = document.createElement('tr');
+
+const isPaidYes = String(r.fizetve || '').toLowerCase() === 'igen';
+const statusStr = String(r.statusz || '').toLowerCase();
+const isStatusAtveve = statusStr === 'átvéve' || statusStr === 'atveve';
+
+// alapból: egy sor, ne tördelje
+tr.className = 'text-nowrap';
+
+// ha feltétel teljesül, kapjon zöld hátteret
+if (isPaidYes && isStatusAtveve) {
+    tr.classList.add('row-complete');
+}
+
+                tr.innerHTML = `
+      <td>${r.sorszam || ''}</td>
+
+
+<td>
+  <div>${toDateTime(r.rendeles_ideje)}</div>
+  ${isRecentOrder(r.rendeles_ideje)
+                        ? '<div><span class="badge badge-warning">Új</span></div>'
+                        : ''
+                    }
+</td>
+
+
+<td>
+  <div class="font-weight-bold">${r.nev || '—'}</div>
+  <div class="small text-muted">${r.email || ''}</div>
+  <div class="small text-muted"><i class="fa-solid fa-phone"></i> ${r.telefonszám || ''}</div>
+</td>
+
+
+
+<td>
+  <div class="font-weight-bold">${toDisplayDate(r.atvetel_napja)}</div>
+  <div class="small text-muted">${r.atvetel_intervallum || ''}</div>
+</td>
+
+<td>
+  <div>${r.torta_tipusa || '—'}</div>
+  <div class="small text-muted">
+    ${r.szeletek_szama ? r.szeletek_szama + ' szelet' : '—'}
+  </div>
+</td>
+
+
+      <td>${extras}</td>
+
+      <td>${haccpAfa}</td>
+
+      <td>${prices}</td>
+
+<td>
+  <select class="form-control form-control-sm"
+          onchange="updateStatus(${r.sorszam}, this.value)">
+    <option ${r.statusz === 'Új' ? 'selected' : ''}>Új</option>
+    <option ${r.statusz === 'Folyamatban' ? 'selected' : ''}>Folyamatban</option>
+    <option ${r.statusz === 'Elkészült' ? 'selected' : ''}>Elkészült</option>
+<option ${r.statusz === 'Átvéve' ? 'selected' : ''}>Átvéve</option>
+  </select>
+</td>
+
+
+<td>
+  <select class="form-control form-control-sm"
+          onchange="updatePaid(${r.sorszam}, this.value)">
+    <option value="nem" ${String(r.fizetve).toLowerCase() === 'nem' ? 'selected' : ''}>nem</option>
+    <option value="igen" ${String(r.fizetve).toLowerCase() === 'igen' ? 'selected' : ''}>igen</option>
+  </select>
+</td>
+
+
+
+<td class="note-wrap">${(r.megjegyzes || '').toString()}</td>
+
+      <td class="text-right">
+        <button class="btn btn-sm btn-outline-primary"
+                title="Szerkesztés"
+                onclick='openEdit(${JSON.stringify(r).replace(/'/g, "&#39;")})'>
+          <i class="fa-regular fa-pen-to-square"></i>
+        </button>
+      </td>
+    `;
+                tb.appendChild(tr);
+            });
+        }
+
+
+        function toInputDate(v) {
+            if (!v) return '';
+            const d = new Date(v);
+            if (isNaN(d)) return '';
+            return d.toISOString().slice(0, 10); // YYYY-MM-DD
+        }
+
+        // Convert any stored value to `YYYY-MM-DDTHH:MM` for <input type="datetime-local">
+        function toInputDateTimeLocal(v) {
+            if (!v) return '';
+            const s = String(v).trim();
+            // Ha már "YYYY-MM-DDTHH:MM", hagyjuk így
+            if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(s)) return s;
+            // Ha "YYYY-MM-DD HH:MM", tegyünk 'T'-t
+            if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(s)) return s.replace(' ', 'T');
+            // Egyébként próbáljuk meg Dátumként és a helyi komponenst írjuk ki
+            const d = new Date(s);
+            if (isNaN(d)) return '';
+            const pad = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        }
+
+        function fromInputDateTimeLocal(s) {
+            return s ? s.slice(0, 16) : '';
+        }
+
+
+        // Optionally normalize the value coming from the input before saving.
+        // Here we keep it simple and store the same "YYYY-MM-DDTHH:MM" string.
+        function fromInputDateTimeLocal(s) {
+            if (!s) return '';
+            return s.slice(0, 16); // keep "YYYY-MM-DDTHH:MM"
+        }
+
+
+
+        function openEdit(r) {
+            // töltés
+            document.getElementById('m_sorszam').value = r.sorszam || '';
+            document.getElementById('m_nev').value = r.nev || '';
+            document.getElementById('m_email').value = r.email || '';
+            document.getElementById('m_telefonszam').value = r.telefonszám || '';
+            document.getElementById('m_atvetel_napja').value = toInputDate(r.atvetel_napja);
+            document.getElementById('m_atvetel_intervallum').value = r.atvetel_intervallum || '';
+            document.getElementById('m_torta_tipusa').value = r.torta_tipusa || '';
+            document.getElementById('m_szeletek_szama').value = r.szeletek_szama || '';
+            document.getElementById('m_allergia').value = r.allergia_erzekenyseg || '';
+
+            document.getElementById('m_szamgyerta').value = r.szamgyertya || '';
+            document.getElementById('m_szamgyertya_tipus').value = r.szamgyertya_tipus || '';
+            document.getElementById('m_tuzijatek').value = r.tuzijatek || '';
+            document.getElementById('m_tortadoboz').value = r.tortadoboz || '';
+            document.getElementById('m_haccp').value = r.haccp || '';
+            document.getElementById('m_afas').value = r.afas_szamla || '';
+            document.getElementById('m_afas_adatok').value = r.afas_szamla_adatok || '';
+
+            document.getElementById('m_torta_ossz').value = r.torta_ossz_HUF || '';
+            document.getElementById('m_szg_ossz').value = r.szamgyertya_ossz_HUF || '';
+            document.getElementById('m_tuzi_ossz').value = r.tuzijatek_ossz_HUF || '';
+            document.getElementById('m_doboz_ossz').value = r.tortadoboz_ossz_HUF || '';
+
+            document.getElementById('m_rovid').value = r.rovid_hataridos || '';
+            document.getElementById('m_rovid_felar').value = r.rovid_hataridos_felar_HUF || '';
+            document.getElementById('m_reszosszeg').value = r.reszosszeg_ismertek_HUF || '';
+            document.getElementById('m_vegosszeg').value = r.vegosszeg_HUF || '';
+
+            document.getElementById('m_rendeles_ideje').value = toInputDateTimeLocal(r.rendeles_ideje);
+            document.getElementById('m_megjegyzes').value = r.megjegyzes || '';
+
+            $('#editModal').modal('show');
+        }
+
+        async function saveEdit() {
+            const payload = {
+                action: 'update',
+                sorszam: document.getElementById('m_sorszam').value,
+
+                nev: document.getElementById('m_nev').value,
+                email: document.getElementById('m_email').value,
+                telefonszám: document.getElementById('m_telefonszam').value,
+
+                atvetel_napja: document.getElementById('m_atvetel_napja').value,
+                atvetel_intervallum: document.getElementById('m_atvetel_intervallum').value,
+
+                torta_tipusa: document.getElementById('m_torta_tipusa').value,
+                szeletek_szama: document.getElementById('m_szeletek_szama').value,
+                allergia_erzekenyseg: document.getElementById('m_allergia').value,
+
+                szamgyertya: document.getElementById('m_szamgyerta').value,
+                szamgyertya_tipus: document.getElementById('m_szamgyertya_tipus').value,
+                tuzijatek: document.getElementById('m_tuzijatek').value,
+                tortadoboz: document.getElementById('m_tortadoboz').value,
+                haccp: document.getElementById('m_haccp').value,
+                afas_szamla: document.getElementById('m_afas').value,
+                afas_szamla_adatok: document.getElementById('m_afas_adatok').value,
+
+                torta_ossz_HUF: document.getElementById('m_torta_ossz').value,
+                szamgyertya_ossz_HUF: document.getElementById('m_szg_ossz').value,
+                tuzijatek_ossz_HUF: document.getElementById('m_tuzi_ossz').value,
+                tortadoboz_ossz_HUF: document.getElementById('m_doboz_ossz').value,
+                rovid_hataridos: document.getElementById('m_rovid').value,
+                rovid_hataridos_felar_HUF: document.getElementById('m_rovid_felar').value,
+                reszosszeg_ismertek_HUF: document.getElementById('m_reszosszeg').value,
+                vegosszeg_HUF: document.getElementById('m_vegosszeg').value,
+
+                rendeles_ideje: fromInputDateTimeLocal(document.getElementById('m_rendeles_ideje').value),
+                megjegyzes: document.getElementById('m_megjegyzes').value
+            };
+
+            const res = await fetch(GAS_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                body: new URLSearchParams(payload)
+            });
+            const text = await res.text();
+
+            if (!res.ok || !/^OK\b/i.test(text.trim())) {
+                showAlert('danger', 'Mentés sikertelen: ' + text);
+                return;
+            }
+            $('#editModal').modal('hide');
+            showAlert('success', 'Mentve!');
+            fetchOrders();
+        }
+
+        async function updateStatus(sorszam, newStatus) {
+            const payload = {
+                action: 'update',
+                sorszam,
+                statusz: newStatus
+            };
+
+            await fetch(GAS_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                body: new URLSearchParams(payload)
+            });
+
+            // Optional toast update
+            showAlert('success', 'Státusz frissítve');
+        }
+
+        async function updatePaid(sorszam, newPaid) {
+            const payload = {
+                action: 'update',
+                sorszam,
+                fizetve: newPaid
+            };
+
+            await fetch(GAS_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                body: new URLSearchParams(payload)
+            });
+
+            showAlert('success', 'Fizetés státusz frissítve');
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchOrders();
+            document.getElementById('searchBox').addEventListener('input', applyFilters);
+            document.getElementById('statusFilter').addEventListener('change', applyFilters);
+            document.getElementById('paidFilter').addEventListener('change', applyFilters);
+            document.getElementById('btnSave').addEventListener('click', saveEdit);
+            document.getElementById('dateFilter').addEventListener('change', applyFilters); 
+        });
+    </script>
+</body>
+
+</html>
