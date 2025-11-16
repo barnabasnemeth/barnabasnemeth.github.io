@@ -282,6 +282,25 @@ body {
     padding: 0 10px; /* Add some padding for better readability */
 }
 
+/* Rendelés szekció – gradient háttérrel */
+#rendeles {
+    background: var(--bg1);      /* vagy var(--bg2), ha inkább az illik a szemnek */
+    padding: 50px 0;
+    color: #322C2B;
+    font-size: 1rem;
+}
+
+#rendeles .section-box {
+    background: var(--bg2);
+    padding: 20px;
+    border-radius: 8px;
+    border: 0.5px solid #ddd;
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+
 .load-more-content {
     display: none; /* Hide additional items */
 }
