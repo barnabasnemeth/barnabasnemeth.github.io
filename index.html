@@ -24,6 +24,10 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@glidejs/glide/dist/css/glide.core.min.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@glidejs/glide/dist/css/glide.theme.min.css" />
+  <link rel="preload" as="image" href="/images/carousel-1.jpg" />
+  <link rel="preload" as="image" href="/images/carousel-2.jpg" />
+  <link rel="preload" as="image" href="/images/carousel-3.jpg" />
+  <link rel="preload" as="image" href="/images/carousel-4.jpg" />
 
   <!-- Open Graph (Facebook, Messenger, stb.) -->
   <meta property="og:type" content="website" />
@@ -117,7 +121,7 @@
   </nav>
 
   <header id="landing">
-    <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" data-interval="5000">
+    <div id="carouselExampleIndicators" class="carousel slide carousel-fade" data-ride="carousel" data-interval="5000" data-pause="false">
       <ol class="carousel-indicators">
           <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
           <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
@@ -150,9 +154,12 @@
   
     <div class="overlay">
       <div class="carousel-caption">
-        <h1>Üdvözöljük a Créme's Dessert oldalán</h1>
-        <p>Kézzel készített finomságok, szeretettel</p>
-        <img src="/images/logo-white.png" alt="Créme's Dessert Logo" class="carousel-logo" />
+        <h1 class="carousel-hero-title">Üdvözöljük a Créme's Dessert oldalán</h1>
+        <p class="carousel-hero-subtitle">Kézzel készített finomságok, szeretettel</p>
+        <div class="carousel-logo-wrap">
+          <span class="carousel-logo-line" aria-hidden="true"></span>
+          <img src="/images/logo-white.png" alt="Créme's Dessert Logo" class="carousel-logo" />
+        </div>
       </div>
     </div>
   </header>
@@ -233,13 +240,12 @@
     <!-- Tortáink Section -->
     <div class="section-box">
       <h4 class="section-subtitle text-center mb-4">Tortáink</h4>
-      <div class="table-responsive">
-        <table class="table table-bordered table-hover">
-          <thead class="thead-dark">
+      <div class="pricing-table-wrap table-responsive">
+        <table class="pricing-table">
+          <thead>
             <tr>
-              <th>Név</th>
-              <th>Ár (8/12/16/24 szelet)
-              </th>
+              <th scope="col">Név</th>
+              <th scope="col" class="pricing-table__price-col">Ár <span class="pricing-table__price-hint">(8/12/16/24 szelet)</span></th>
             </tr>
           </thead>
           <tbody id="pricing-table-body">
@@ -540,8 +546,11 @@
               <a href="tel:+36302580495">06-30/258 0495</a>
             </p>
             <p><strong>Email:</strong> cremesdessert@gmail.com</p>
-            <p><strong>Nyitvatartás:</strong></p>
-            <ul id="opening-hours-list"></ul>
+            <div id="opening-hours-wrapper">
+              <p><strong>Nyitvatartás:</strong></p>
+              <ul id="opening-hours-list"></ul>
+              <p id="opening-hours-message" class="opening-hours-message" hidden></p>
+            </div>
           </div>
         </div>
       </div>

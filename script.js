@@ -55,6 +55,15 @@ function scrollToSection(sectionId) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    const heroCarousel = document.getElementById('carouselExampleIndicators');
+    if (heroCarousel && window.jQuery) {
+        window.jQuery(heroCarousel).carousel({
+            interval: 5000,
+            pause: false,
+            wrap: true,
+        });
+    }
+
     // Smooth Scrolling
     const navLinks = document.querySelectorAll('.nav-link');
     const sections = document.querySelectorAll('section');
@@ -149,35 +158,49 @@ document.addEventListener('DOMContentLoaded', async () => {
     const pricingSheetUrl = 'https://docs.google.com/spreadsheets/d/1QZOUq7eYXNSwd3CkgJmQMCGrDCxqQ7FO2RmozPnQWkM/gviz/tq?sheet=tortak&tqx=out:json';
     const extraSheetUrl = 'https://docs.google.com/spreadsheets/d/1QZOUq7eYXNSwd3CkgJmQMCGrDCxqQ7FO2RmozPnQWkM/gviz/tq?sheet=egyeb&tqx=out:json';
 
-    // Async function to fetch and populate the pricing table
     async function fetchPricingData() {
-        try {
-            const response = await fetch(pricingSheetUrl);
-            const text = await response.text();
-            const data = JSON.parse(text.substring(47, text.length - 2));
-            const pricingTableBody = document.getElementById('pricing-table-body');
-            const rows = data.table.rows;
+    try {
+        const response = await fetch(pricingSheetUrl);
+        const text = await response.text();
+        const data = JSON.parse(text.substring(47, text.length - 2));
+        const pricingTableBody = document.getElementById('pricing-table-body');
+        const rows = data.table.rows;
 
-            // Skip the first row
-            rows.slice(1).forEach(row => {
-                const name = row.c[0]?.v || 'N/A';
-                const exemption = row.c[1]?.v || '';
-                const price = row.c[2]?.v || 'N/A';
-                const combinedName = exemption ? `${name} <span class="small-text">(${exemption})</span>` : name;
+        rows.slice(1).forEach(row => {
+            const name = String(row.c[0]?.v ?? '').trim();
+            if (!name) {
+                return;
+            }
 
-                const tableRow = `
-                    <tr>
-                        <td>${combinedName}</td>
-                        <td>${price}</td>
-                    </tr>
-                `;
-                pricingTableBody.insertAdjacentHTML('beforeend', tableRow);
-            });
-        } catch (error) {
-            console.error('Error fetching pricing data:', error);
-            document.getElementById('pricing-table-body').innerHTML = '<tr><td colspan="2">Hiba történt az adatok betöltése közben.</td></tr>';
-        }
+            const exemption = row.c[1]?.v || '';
+            const price = row.c[2]?.v || 'N/A';
+            const showOnIndexRaw = row.c[3]?.v || '';        // NEW
+            const showOnIndex = String(showOnIndexRaw).toLowerCase();
+
+            // if this row should NOT appear on index, skip it
+            if (showOnIndex === 'no' || showOnIndex === 'false' || showOnIndex === 'hide') {
+                return;
+            }
+
+            const combinedName = exemption
+                ? `${name} <span class="small-text">(${exemption})</span>`
+                : name;
+
+            const tableRow = `
+                <tr>
+                    <td>${combinedName}</td>
+                    <td>${price}</td>
+                </tr>
+            `;
+            pricingTableBody.insertAdjacentHTML('beforeend', tableRow);
+        });
+    } catch (error) {
+        console.error('Error fetching pricing data:', error);
+        document.getElementById('pricing-table-body').innerHTML =
+            '<tr><td colspan="2">Hiba történt az adatok betöltése közben.</td></tr>';
     }
+}
+
 
     // Async function to fetch and populate the "Egyéb" list
     async function fetchExtraData() {
@@ -190,7 +213,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // Skip the first row
             rows.slice(1).forEach(row => {
-                const itemName = row.c[0]?.v || 'N/A';
+                const itemName = String(row.c[0]?.v ?? '').trim();
+                if (!itemName) {
+                    return;
+                }
+
                 const listItem = `- ${itemName}<br>`;
                 extraList.insertAdjacentHTML('beforeend', listItem);
             });
@@ -210,22 +237,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 document.addEventListener('DOMContentLoaded', async () => {
     const openingHoursSheetUrl = 'https://docs.google.com/spreadsheets/d/1QZOUq7eYXNSwd3CkgJmQMCGrDCxqQ7FO2RmozPnQWkM/gviz/tq?sheet=nyitvatartas&tqx=out:json';
 
+    function normalizeForMatch(text) {
+        return String(text)
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+    }
+
     try {
-        // Fetch and parse data for opening hours
         const openingHoursResponse = await fetch(openingHoursSheetUrl);
         const openingHoursText = await openingHoursResponse.text();
         const openingHoursData = JSON.parse(openingHoursText.substring(47, openingHoursText.length - 2));
         const openingHoursRows = openingHoursData.table.rows;
         const openingHoursList = document.getElementById('opening-hours-list');
+        const openingHoursWrapper = document.getElementById('opening-hours-wrapper');
+        const openingHoursMessage = document.getElementById('opening-hours-message');
 
-        // Exclude the first row (header row) and populate the opening hours list
-        openingHoursRows.slice(1).forEach(row => {
+        const dataRows = openingHoursRows.slice(1);
+        const globalMessage = String(dataRows[0]?.c[3]?.v || '').trim();
+
+        dataRows.forEach(row => {
             const day = row.c[0]?.v || 'N/A';
             const openTime = row.c[1]?.v || '';
             const closeTime = row.c[2]?.v || '';
 
             let listItem;
-            if (openTime.toLowerCase() === 'zárva') {
+            if (String(openTime).toLowerCase() === 'zárva') {
                 listItem = `<li>${day}: Zárva</li>`;
             } else {
                 listItem = `<li>${day}: ${openTime} - ${closeTime}</li>`;
@@ -233,6 +270,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             openingHoursList.insertAdjacentHTML('beforeend', listItem);
         });
+
+        if (globalMessage && openingHoursMessage && openingHoursWrapper) {
+            openingHoursMessage.textContent = globalMessage;
+            openingHoursMessage.hidden = false;
+
+            if (normalizeForMatch(globalMessage).includes('zarva')) {
+                openingHoursWrapper.classList.add('opening-hours-closed-warning');
+            }
+        }
 
     } catch (error) {
         console.error('Error fetching or processing opening hours data:', error);
