@@ -9,8 +9,10 @@
   <meta name="keywords" content="desszertműhely, kézműves torta, sütemény, cukrászda, Budapest 22 kerület, ajándékutalvány, esküvői torta, desszertasztal" />
   <meta name="author" content="Créme's Dessert" />
     <link rel="canonical" href="https://cremesdessert.com/" />
-<link rel="icon" type="image/png" sizes="32x32" href="/images/cremes-favicon.png" />
-<link rel="shortcut icon" href="/images/cremes-favicon.png" type="image/png" />
+<link rel="icon" type="image/png" sizes="32x32" href="/images/cremes-favicon-32.png" />
+<link rel="icon" type="image/png" sizes="48x48" href="/images/cremes-favicon-48.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="/images/cremes-favicon-180.png" />
+<link rel="shortcut icon" href="/images/cremes-favicon-32.png" type="image/png" />
 
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400&display=swap" />
@@ -22,6 +24,7 @@
     href="https://fonts.googleapis.com/css2?family=Besley:ital,wght@0,400..900;1,400..900&family=Satisfy&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="premium-theme.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@glidejs/glide/dist/css/glide.core.min.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@glidejs/glide/dist/css/glide.theme.min.css" />
   <link rel="preload" as="image" href="/images/carousel-1.jpg" />
@@ -84,9 +87,13 @@
           <i class="fab fa-instagram"></i>
         </a>
       </div>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
+      <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Menü megnyitása">
+        <span class="navbar-hamburger" aria-hidden="true">
+          <span class="navbar-hamburger__line"></span>
+          <span class="navbar-hamburger__line"></span>
+          <span class="navbar-hamburger__line"></span>
+        </span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ml-auto">
@@ -97,7 +104,7 @@
             <a class="nav-link" href="#kinalatunk">Kínálatunk</a>
           </li>
             <li class="nav-item">
-    <a class="nav-link" href="#rendeles">Rendelés</a>
+    <a class="nav-link nav-link-order" href="#rendeles">Rendelés</a>
   </li>
           <li class="nav-item">
             <a class="nav-link" href="#gift-card">Ajándékutalvány</a>
@@ -122,12 +129,6 @@
 
   <header id="landing">
     <div id="carouselExampleIndicators" class="carousel slide carousel-fade" data-ride="carousel" data-interval="5000" data-pause="false">
-      <ol class="carousel-indicators">
-          <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
-          <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
-          <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
-          <li data-target="#carouselExampleIndicators" data-slide-to="3"></li> <!-- New indicator -->
-      </ol>
       <div class="carousel-inner">
           <div class="carousel-item active">
               <img src="/images/carousel-1.jpg" class="d-block w-100" alt="Carousel Image 1" />
@@ -142,31 +143,34 @@
               <img src="/images/carousel-4.jpg" class="d-block w-100" alt="Carousel Image 4" />
           </div>
       </div>
-      <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span class="sr-only">Previous</span>
-      </a>
-      <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-          <span class="carousel-control-next-icon" aria-hidden="true"></span>
-          <span class="sr-only">Next</span>
-      </a>
   </div>
   
     <div class="overlay">
       <div class="carousel-caption">
         <h1 class="carousel-hero-title">Üdvözöljük a Créme's Dessert oldalán</h1>
         <p class="carousel-hero-subtitle">Kézzel készített finomságok, szeretettel</p>
+        <div class="hero-cta-group">
+          <a href="/rendeles" class="btn btn-premium btn-premium-primary">Rendelés</a>
+          <a href="#kinalatunk" class="btn btn-premium btn-premium-secondary">Kínálatunk</a>
+        </div>
         <div class="carousel-logo-wrap">
           <span class="carousel-logo-line" aria-hidden="true"></span>
           <img src="/images/logo-white.png" alt="Créme's Dessert Logo" class="carousel-logo" />
         </div>
       </div>
     </div>
+
+    <div class="hero-wave" aria-hidden="true">
+      <svg viewBox="0 0 1440 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path class="hero-wave__back" d="M0,52 C240,98 420,8 720,44 C1020,80 1200,18 1440,48 L1440,100 L0,100 Z" />
+        <path class="hero-wave__front" d="M0,68 C300,18 480,88 720,52 C960,16 1140,78 1440,36 L1440,100 L0,100 Z" />
+      </svg>
+    </div>
   </header>
 
-  <section id="about">
+  <section id="about" class="section-bg-offwhite">
     <div class="container">
-      <h2>Rólunk</h2>
+      <h2 class="section-title">Rólunk</h2>
       <div class="row">
         <div class="col-md-6">
           <p>
@@ -184,14 +188,18 @@
         </div>
 
         <div class="col-md-6">
-          <img src="/images/about_photo.jpg" alt="Rólunk kép" class="img-fluid" />
+          <div class="about-sparkle-wrap">
+            <img src="/images/about_photo.jpg" alt="Rólunk kép" class="img-fluid premium-img" />
+          </div>
         </div>
       </div>
 
       <!-- New Rólam section -->
       <div class="row mt-5">
         <div class="col-md-6 order-2 order-md-1">
-          <img src="/images/rolam.jpg" alt="Rólam kép" class="img-fluid" style="height: 100%; width: 100%; object-fit: cover; border-radius: 10px;" />
+          <div class="about-sparkle-wrap about-sparkle-wrap--tall">
+            <img src="/images/rolam.jpg" alt="Rólam kép" class="img-fluid" />
+          </div>
         </div>
         
         <div class="col-md-6 order-1 order-md-2">
@@ -240,18 +248,27 @@
     <!-- Tortáink Section -->
     <div class="section-box">
       <h4 class="section-subtitle text-center mb-4">Tortáink</h4>
-      <div class="pricing-table-wrap table-responsive">
-        <table class="pricing-table">
-          <thead>
-            <tr>
-              <th scope="col">Név</th>
-              <th scope="col" class="pricing-table__price-col">Ár <span class="pricing-table__price-hint">(8/12/16/24 szelet)</span></th>
-            </tr>
-          </thead>
-          <tbody id="pricing-table-body">
-            <!-- Table data will be inserted here dynamically -->
-          </tbody>
-        </table>
+      <div class="cake-pricing" id="cake-pricing">
+        <div class="cake-pricing__desktop">
+          <table class="cake-pricing__table">
+            <caption class="sr-only">Torták árlistája</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="cake-pricing__th-name">Név</th>
+                <th scope="col">8 szelet</th>
+                <th scope="col">12 szelet</th>
+                <th scope="col">16 szelet</th>
+                <th scope="col">24 szelet</th>
+              </tr>
+            </thead>
+            <tbody id="pricing-table-body">
+              <!-- Google Sheets-ből töltődik -->
+            </tbody>
+          </table>
+        </div>
+        <div class="cake-pricing__mobile" id="pricing-cards" role="list" aria-label="Torták árlistája">
+          <!-- Google Sheets-ből töltődik -->
+        </div>
       </div>
       <p class="small-text">Készülnek: 8, 12, 16, 24 szeletesben</p>      
       <p class="small-text">Áraink forintban értendők</p>
@@ -270,52 +287,51 @@
           <strong>*VEGAN</strong> – Tejfehérje, tojás, méz, zselatin mentes
         </p>
       </div>
+      <div class="text-center mt-4">
+        <a href="/rendeles" class="btn btn-premium btn-premium-primary ajanlatkeres-btn">Rendelés</a>
+      </div>
     </div>
 
-    <!-- Pogácsa Section -->
     <!-- További Kínálatok Section -->
-<div class="section-box mt-4">
-  <h4 class="section-subtitle text-center mb-4">További kínálataink</h4>
-  
-  <!-- Pogácsa Content -->
-  <div class="row align-items-center pogacsa-section mb-4">
-    <div class="col-md-6 text-right">
-      <img src="/images/pogacsa.jpg" alt="Pogácsa Photo" class="img-fluid rounded" />
-    </div>
-    <div class="col-md-6 text-left">
-      <p>
-        <strong>- Túrós-gouda sajtos apró pogácsa</strong><br />
-        Min. rendelési mennyiség: 0,5 kg<br />
-        <strong>8190,-Ft / kg</strong>
-      </p>
-    </div>
-  </div>
+    <div class="section-box kinalat-extras mt-4">
+      <h4 class="section-subtitle text-center kinalat-extras__title">További kínálataink</h4>
 
-  <!-- További Kínálat List and Image -->
-  <div class="row align-items-center pogacsa-section">
-    <div class="col-md-6 text-md-right text-left">
-      <strong><p id="extra-list"></p></strong>
-    </div>
-    <div class="col-md-6 text-md-left text-center">
-      <img src="/images/tovabbi.jpg" alt="További kínálat Photo" class="img-fluid rounded" style="max-height: 200px;" />
-    </div>
-  </div>
-</div>
+      <article class="extras-feature-card">
+        <div class="extras-feature-card__media">
+          <img src="/images/pogacsa.jpg" alt="Túrós-gouda sajtos apró pogácsa" class="extras-feature-card__img" />
+        </div>
+        <div class="extras-feature-card__body">
+          <span class="extras-badge">Kiemelt ajánlat</span>
+          <h5 class="extras-feature-card__name">Túrós-gouda sajtos apró pogácsa</h5>
+          <p class="extras-feature-card__meta">Min. rendelési mennyiség: <strong>0,5 kg</strong></p>
+          <p class="extras-feature-card__price"><span class="extras-feature-card__amount">8190,-</span> Ft / kg</p>
+        </div>
+      </article>
 
-</section>
+      <div class="extras-grid">
+        <div class="extras-list-panel">
+          <h5 class="extras-list-panel__heading">Aktuális finomságok</h5>
+          <ul id="extra-list" class="extras-list" aria-label="További kínálat lista"></ul>
+        </div>
+        <div class="extras-showcase">
+          <div class="extras-showcase__frame">
+            <img src="/images/tovabbi.jpg" alt="További kínálat" class="extras-showcase__img" />
+          </div>
+        </div>
+      </div>
+    </div>
 
 </section>
 
-<section id="rendeles">
+<section id="rendeles" class="rendeles-highlight">
   <div class="container">
     <h2 class="section-title text-center">Rendelés</h2>
-    <div class="section-box text-center">
+    <div class="section-box rendeles-cta-panel text-center">
       <p>Online is leadhatja rendelését néhány kattintással.</p>
       <p class="mb-4">
         Kattintson az alábbi gombra, és töltse ki egyszerű rendelési űrlapunkat:
       </p>
-<a href="/rendeles" class="btn ajanlatkeres-btn" target="_blank">
-
+<a href="/rendeles" class="btn btn-premium btn-premium-primary ajanlatkeres-btn" target="_blank">
         Rendelés leadása
       </a>
     </div>
@@ -331,7 +347,7 @@
     <div class="text-center mt-4">
       <p>Ajándékutalványunkat kérje személyesen üzletünkben,</p>
       <p>hogy gasztro élményt ajándékozhasson.</p>
-      <img src="/images/ajandekutalvany.jpg" alt="Ajándékutalvány" class="img-fluid mt-3 rounded" style="max-height: 250px;" />
+      <img src="https://i.ibb.co/0jL28WDM/Chat-GPT-Image-Jul-7-2026-04-34-35-PM.png" alt="Ajándékutalvány" class="img-fluid mt-3 rounded" style="max-height: 250px;" />
     </div>
   </div>
 </section>
@@ -363,7 +379,7 @@
 
     <!-- Ajánlatkérés Button -->
     <div class="text-center mt-4">
-      <button type="button" id="requestOfferBtn" class="btn ajanlatkeres-btn">Ajánlatkérés</button>
+      <button type="button" id="requestOfferBtn" class="btn btn-premium btn-premium-primary ajanlatkeres-btn">Ajánlatkérés</button>
     </div>
   </div>
 </section>
@@ -410,7 +426,7 @@
             <textarea class="form-control" id="message" name="message" rows="4"></textarea>
           </div>
 
-          <button type="submit" class="btn ajanlatkeres-btn">Küldés</button>
+          <button type="submit" class="btn btn-premium btn-premium-primary ajanlatkeres-btn">Küldés</button>
         </form>
       </div>
     </div>
@@ -449,9 +465,14 @@
     </div>
         <!-- FlickR Button -->
         <div class="text-center mt-4">
-          <a href="https://www.flickr.com/photos/202221916@N07/" target="_blank" class="btn galeria-btn">
-            További képekért nézze meg teljes galériánkat           <span class="ml-2">↗️</span>
-
+          <a href="https://www.flickr.com/photos/202221916@N07/" target="_blank" rel="noopener noreferrer" class="btn galeria-btn">
+            <span class="galeria-btn__label">Teljes galéria</span>
+            <span class="galeria-btn__icon" aria-hidden="true">
+              <svg class="galeria-btn__svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 16L16 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M10 8H16V14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
           </a>
 
         </div>
@@ -529,7 +550,7 @@
 
   <section id="visit">
     <div class="container">
-      <h2>Kapcsolat</h2>
+      <h2 class="section-title">Kapcsolat</h2>
       <div class="row">
         <div class="col-md-8">
           <iframe
@@ -597,9 +618,26 @@
 </section> -->
 
 
-  <footer>
-    <div class="container text-center">
-      <p>&copy; Créme's Dessert. Minden jog fenntartva.</p>
+  <footer class="site-footer">
+    <div class="container">
+      <div class="row align-items-start text-center text-md-left">
+        <div class="col-md-5 mb-4 mb-md-0">
+          <p class="footer-brand">Créme's Dessert</p>
+          <p>Kézműves desszertműhely Budapesten — finom ízek, szeretettel készítve.</p>
+        </div>
+        <div class="col-md-4 mb-4 mb-md-0 footer-links">
+          <p><strong>Elérhetőség</strong></p>
+          <p>Budapest, Klauzál Gábor u. 41, 1223</p>
+          <p><a href="tel:+36302580495">06-30/258 0495</a></p>
+          <p><a href="mailto:cremesdessert@gmail.com">cremesdessert@gmail.com</a></p>
+        </div>
+        <div class="col-md-3 footer-social text-center text-md-right">
+          <p><strong>Kövessen minket</strong></p>
+          <a href="https://www.facebook.com/profile.php?id=61561087531875" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/cremes.dessert/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+      <p class="footer-copy text-center mb-0">&copy; Créme's Dessert. Minden jog fenntartva.</p>
     </div>
   </footer>
 

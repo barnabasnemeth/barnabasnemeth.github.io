@@ -14,7 +14,10 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
         crossorigin="anonymous" referrerpolicy="no-referrer">
-        <link rel="shortcut icon" href="/images/cremes-favicon.png" type="image/png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/images/cremes-favicon-32.png" />
+        <link rel="icon" type="image/png" sizes="48x48" href="/images/cremes-favicon-48.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/cremes-favicon-180.png" />
+        <link rel="shortcut icon" href="/images/cremes-favicon-32.png" type="image/png" />
 
 
 
@@ -28,16 +31,13 @@
 
     <style>
         :root {
-            --bg1: linear-gradient(to bottom, #FAEED1 0%, #FAEED1 50%, #F9DFC1 100%);
-            --bg2: linear-gradient(to top, #FDF7E4 0%, #FDF7E4 50%, #FCE7D4 100%);
-            --ink: #322C2B;
-            --accent1: #F8C794;
-            --accent2: #D8AE7E;
+            --ink: #3A2A20;
+            --accent1: #C8A27A;
+            --accent2: #D8C3A5;
         }
 
-        body {
-            background:
-                linear-gradient(135deg, #FFF7ED 0%, #FAE3D5 45%, #FADCC7 60%, #F6D3C0 100%);
+        body.order-page {
+            /* háttér: premium-theme.css */
             color: var(--ink);
         }
 
@@ -615,9 +615,10 @@
             display: none !important;
         }
     </style>
+    <link rel="stylesheet" href="/premium-theme.css" />
 </head>
 
-<body>
+<body class="order-page">
 
     
     <main class="container py-5">

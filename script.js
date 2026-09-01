@@ -78,7 +78,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    function isDesktopNav() {
+        return window.matchMedia('(min-width: 992px)').matches;
+    }
+
     function setActiveNavLink() {
+        if (!isDesktopNav()) {
+            navLinks.forEach(link => link.classList.remove('active'));
+            return;
+        }
+
         const scrollPosition = window.scrollY + navbarHeight + 20;
 
         sections.forEach((section, index) => {
@@ -93,7 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.addEventListener('scroll', setActiveNavLink);
-    setActiveNavLink(); // Set the initial active link
+    window.addEventListener('resize', setActiveNavLink);
+    setActiveNavLink();
 });
 
 
@@ -157,49 +167,156 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DOMContentLoaded', async () => {
     const pricingSheetUrl = 'https://docs.google.com/spreadsheets/d/1QZOUq7eYXNSwd3CkgJmQMCGrDCxqQ7FO2RmozPnQWkM/gviz/tq?sheet=tortak&tqx=out:json';
     const extraSheetUrl = 'https://docs.google.com/spreadsheets/d/1QZOUq7eYXNSwd3CkgJmQMCGrDCxqQ7FO2RmozPnQWkM/gviz/tq?sheet=egyeb&tqx=out:json';
+    const SLICE_SIZES = [8, 12, 16, 24];
+
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function parseFtLikeToNumber(s) {
+        if (!s) return NaN;
+        return Number(String(s).replace(/\s|\.|,-|,|Ft/gi, '').trim());
+    }
+
+    function parsePriceTriple(cellText) {
+        const out = {};
+        if (!cellText) return out;
+
+        const parts = String(cellText).split('/').map(p => p.trim());
+        if (parts.length < 2) return out;
+
+        const mapOrder = [8, 12, 16, 24];
+        parts.forEach((part, idx) => {
+            const val = parseFtLikeToNumber(part);
+            if (!isNaN(val) && mapOrder[idx] != null) {
+                out[mapOrder[idx]] = val;
+            }
+        });
+        return out;
+    }
+
+    function formatPriceHu(num) {
+        if (typeof num !== 'number' || isNaN(num)) return '–';
+        return new Intl.NumberFormat('hu-HU').format(num) + ',-';
+    }
+
+    function parseBadges(exemption) {
+        if (!exemption) return [];
+        return String(exemption)
+            .split(/[,;/|]+/)
+            .map(b => b.trim().replace(/^\*+|\*+$/g, ''))
+            .filter(Boolean)
+            .map(b => b.toUpperCase());
+    }
+
+    function renderBadgesHtml(badges) {
+        if (!badges.length) return '';
+        const items = badges
+            .map(b => `<span class="cake-badge">${escapeHtml(b)}</span>`)
+            .join('');
+        return `<div class="cake-badges">${items}</div>`;
+    }
+
+    function buildTableRow({ name, badges, prices, rawPriceText }) {
+        const priceCells = SLICE_SIZES.map(size => {
+            const val = prices[size];
+            const display = val ? formatPriceHu(val) : (rawPriceText && !Object.keys(prices).length ? escapeHtml(rawPriceText) : '–');
+            return `<td class="cake-pricing__price">${display}</td>`;
+        }).join('');
+
+        return `
+            <tr>
+                <th scope="row" class="cake-pricing__name">
+                    <span class="cake-pricing__name-text">${escapeHtml(name)}</span>
+                    ${renderBadgesHtml(badges)}
+                </th>
+                ${priceCells}
+            </tr>
+        `;
+    }
+
+    function buildMobileCard({ name, badges, prices, rawPriceText }) {
+        let priceRows = '';
+
+        if (Object.keys(prices).length) {
+            priceRows = SLICE_SIZES.map(size => {
+                const val = prices[size];
+                if (!val) return '';
+                return `
+                    <div class="cake-card__price-row">
+                        <dt class="cake-card__slice">${size} szelet</dt>
+                        <dd class="cake-card__amount">${formatPriceHu(val)}</dd>
+                    </div>
+                `;
+            }).join('');
+        } else if (rawPriceText) {
+            priceRows = `
+                <div class="cake-card__price-row">
+                    <dt class="cake-card__slice">Ár</dt>
+                    <dd class="cake-card__amount">${escapeHtml(rawPriceText)}</dd>
+                </div>
+            `;
+        }
+
+        return `
+            <article class="cake-card" role="listitem">
+                <div class="cake-card__header">
+                    <h3 class="cake-card__name">${escapeHtml(name)}</h3>
+                    ${renderBadgesHtml(badges)}
+                </div>
+                <dl class="cake-card__prices">${priceRows}</dl>
+            </article>
+        `;
+    }
 
     async function fetchPricingData() {
-    try {
-        const response = await fetch(pricingSheetUrl);
-        const text = await response.text();
-        const data = JSON.parse(text.substring(47, text.length - 2));
         const pricingTableBody = document.getElementById('pricing-table-body');
-        const rows = data.table.rows;
+        const pricingCards = document.getElementById('pricing-cards');
 
-        rows.slice(1).forEach(row => {
-            const name = String(row.c[0]?.v ?? '').trim();
-            if (!name) {
-                return;
-            }
+        try {
+            const response = await fetch(pricingSheetUrl);
+            const text = await response.text();
+            const data = JSON.parse(text.substring(47, text.length - 2));
+            const rows = data.table.rows;
 
-            const exemption = row.c[1]?.v || '';
-            const price = row.c[2]?.v || 'N/A';
-            const showOnIndexRaw = row.c[3]?.v || '';        // NEW
-            const showOnIndex = String(showOnIndexRaw).toLowerCase();
+            rows.slice(1).forEach(row => {
+                const name = String(row.c[0]?.v ?? '').trim();
+                if (!name) {
+                    return;
+                }
 
-            // if this row should NOT appear on index, skip it
-            if (showOnIndex === 'no' || showOnIndex === 'false' || showOnIndex === 'hide') {
-                return;
-            }
+                const exemption = row.c[1]?.v || '';
+                const priceCell = row.c[2]?.v || '';
+                const showOnIndexRaw = row.c[3]?.v || '';
+                const showOnIndex = String(showOnIndexRaw).toLowerCase();
 
-            const combinedName = exemption
-                ? `${name} <span class="small-text">(${exemption})</span>`
-                : name;
+                if (showOnIndex === 'no' || showOnIndex === 'false' || showOnIndex === 'hide') {
+                    return;
+                }
 
-            const tableRow = `
-                <tr>
-                    <td>${combinedName}</td>
-                    <td>${price}</td>
-                </tr>
-            `;
-            pricingTableBody.insertAdjacentHTML('beforeend', tableRow);
-        });
-    } catch (error) {
-        console.error('Error fetching pricing data:', error);
-        document.getElementById('pricing-table-body').innerHTML =
-            '<tr><td colspan="2">Hiba történt az adatok betöltése közben.</td></tr>';
+                const badges = parseBadges(exemption);
+                const prices = parsePriceTriple(priceCell);
+                const item = {
+                    name,
+                    badges,
+                    prices,
+                    rawPriceText: String(priceCell).trim(),
+                };
+
+                pricingTableBody.insertAdjacentHTML('beforeend', buildTableRow(item));
+                pricingCards.insertAdjacentHTML('beforeend', buildMobileCard(item));
+            });
+        } catch (error) {
+            console.error('Error fetching pricing data:', error);
+            const errorMsg = 'Hiba történt az adatok betöltése közben.';
+            pricingTableBody.innerHTML = `<tr><td colspan="5">${errorMsg}</td></tr>`;
+            pricingCards.innerHTML = `<p class="cake-pricing__error">${errorMsg}</p>`;
+        }
     }
-}
 
 
     // Async function to fetch and populate the "Egyéb" list
@@ -211,19 +328,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             const extraList = document.getElementById('extra-list');
             const rows = data.table.rows;
 
-            // Skip the first row
             rows.slice(1).forEach(row => {
                 const itemName = String(row.c[0]?.v ?? '').trim();
                 if (!itemName) {
                     return;
                 }
 
-                const listItem = `- ${itemName}<br>`;
-                extraList.insertAdjacentHTML('beforeend', listItem);
+                const listItem = document.createElement('li');
+                listItem.className = 'extras-list__item';
+                listItem.textContent = itemName;
+                extraList.appendChild(listItem);
             });
         } catch (error) {
             console.error('Error fetching extra data:', error);
-            document.getElementById('extra-list').innerHTML = '<p>Hiba történt az adatok betöltése közben.</p>';
+            document.getElementById('extra-list').innerHTML = '<li class="extras-list__item extras-list__item--error">Hiba történt az adatok betöltése közben.</li>';
         }
     }
 

@@ -119,6 +119,41 @@
         .table-striped tbody tr.row-complete {
             background-color: #d4edda !important;
         }
+
+        .sortable {
+    cursor: pointer;
+}
+
+.sortable::after {
+    content: ' ⇅';
+    font-size: 0.7rem;
+    opacity: 0.6;
+}
+
+.item-toggle {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+}
+
+.item-toggle i {
+  font-size: 0.75rem;
+  margin-left: 4px;
+  transition: transform 0.15s;
+}
+
+.item-toggle[aria-expanded="true"] i {
+  transform: rotate(180deg);
+}
+
+.items-list small {
+  display: block;
+  line-height: 1.2;
+}
+
+
+
     </style>
 </head>
 
@@ -170,22 +205,23 @@
                         <col style="min-width:160px;"> <!-- Megjegyzés -->
                         <col style="width:90px;"> <!-- Művelet -->
                     </colgroup>
-                    <thead class="thead-light">
-                        <tr class="text-nowrap">
-                            <th>#</th>
-                            <th>Rendelés ideje</th>
-                            <th>Ügyfél</th>
-                            <th>Átvétel</th>
-                            <th>Torta</th>
-                            <th>Extrák</th>
-                            <th>HACCP / Áfás</th>
-                            <th>Árak</th>
-                            <th>Státusz</th>
-                            <th>Fizetve</th>
-                            <th>Megjegyzés</th>
-                            <th class="text-right">Művelet</th>
-                        </tr>
-                    </thead>
+<thead class="thead-light">
+    <tr class="text-nowrap">
+        <th class="sortable" data-sort="sorszam">#</th>
+        <th class="sortable" data-sort="rendeles_ideje">Rendelés ideje</th>
+        <th class="sortable" data-sort="nev">Ügyfél</th>
+        <th class="sortable" data-sort="atvetel_napja">Átvétel</th>
+        <th class="sortable" data-sort="torta_tipusa">Torta</th>
+        <th>Extrák</th>
+        <th>HACCP / Áfás</th>
+        <th class="sortable" data-sort="vegosszeg">Árak</th>
+        <th class="sortable" data-sort="statusz">Státusz</th>
+        <th class="sortable" data-sort="fizetve">Fizetve</th>
+        <th class="sortable" data-sort="megjegyzes">Megjegyzés</th>
+        <th class="text-right">Művelet</th>
+    </tr>
+</thead>
+
                     <tbody id="ordersBody">
                         <!--
           Row rendering stays in JS. Suggested cell contents per column:
@@ -376,7 +412,12 @@
         // Állítsd a saját, telepített Web App URL-re (Deploy -> New Deployment)
         const GAS_URL = 'https://cremesdesszert-proxy.nemethhaz.workers.dev';
 
-        const state = { rows: [], filtered: [] };
+const state = { 
+    rows: [], 
+    filtered: [],
+    sortKey: 'rendeles_ideje',
+    sortDir: 'desc'   // 'asc' vagy 'desc'
+};
 
         const HUF = n => (n && !isNaN(n)) ? new Intl.NumberFormat('hu-HU').format(Number(n)) + ' Ft' : '';
 
@@ -448,17 +489,7 @@ if (dateFilter) {
         return true;
     });
 
-    // rendezés maradhat
-    state.filtered.sort((a, b) => {
-        const da = parseDateTime(a.rendeles_ideje);
-        const db = parseDateTime(b.rendeles_ideje);
-
-        if (!da && !db) return 0;
-        if (!da) return 1;
-        if (!db) return -1;
-        return db - da;
-    });
-
+    sortFiltered();
     renderTable();
 }
 
@@ -533,6 +564,45 @@ function isRecentOrder(v) {
             return isNaN(d) ? null : d;
         }
 
+        const SORT_GETTERS = {
+  sorszam: r => Number(r.sorszam || 0),
+  rendeles_ideje: r => {
+    const d = parseDateTime(r.rendeles_ideje);
+    return d ? d.getTime() : 0;
+  },
+  nev: r => (r.nev || '').toLowerCase(),
+  atvetel_napja: r => {
+    if (!r.atvetel_napja) return 0;
+    const d = new Date(r.atvetel_napja);
+    return isNaN(d) ? 0 : d.getTime();
+  },
+  torta_tipusa: r => (r.torta_tipusa || '').toLowerCase(),
+  vegosszeg: r => {
+    const v = computeFinal(r);       // '' vagy szám
+    return v === '' ? 0 : Number(v);
+  },
+  statusz: r => (r.statusz || '').toLowerCase(),
+  fizetve: r => (String(r.fizetve || '').toLowerCase() === 'igen' ? 1 : 0),
+  megjegyzes: r => (r.megjegyzes || '').toLowerCase()
+};
+
+function sortFiltered() {
+  const key = state.sortKey;
+  const dir = state.sortDir === 'asc' ? 1 : -1;
+  const getter = SORT_GETTERS[key];
+
+  if (!getter) return;  // ha véletlen nincs definiálva
+
+  state.filtered.sort((a, b) => {
+    const va = getter(a);
+    const vb = getter(b);
+
+    if (va === vb) return 0;
+    return va < vb ? -1 * dir : 1 * dir;
+  });
+}
+
+
         // Elmúlt 5 napban érkezett-e a rendelés?
         function isRecentOrder(v) {
             const d = parseDateTime(v);
@@ -550,6 +620,91 @@ function isRecentOrder(v) {
         function parseAfasAdatok(raw) {
             try { return raw ? JSON.parse(raw) : {}; } catch { return {}; }
         }
+
+        // Feltételezzük, hogy r.tetelek egy tömb pl.:
+// "Pisztáciás Bejgli x2 db; Pisztáciás Bejgli x1 db; ..." -> tömb sorokra
+function splitTortaItems(str) {
+  return String(str || '')
+    .split(';')
+    .map(s => s.trim());
+}
+
+function parseQtyFromItemText(str) {
+  // "Piemonti torta x2 db" -> 2
+  const m = String(str || '').match(/x\s*(\d+)\s*db/i);
+  if (m) {
+    const n = parseInt(m[1], 10);
+    return isNaN(n) ? 1 : n;
+  }
+  return 1; // ha nincs benne "x N db", akkor 1-nek vesszük
+}
+
+
+function splitSlices(str) {
+  return String(str || '')
+    .split(';')
+    .map(s => s.trim());
+}
+
+
+// Torta oszlop renderelése
+function renderTortaCell(r) {
+  const items  = splitTortaItems(r.torta_tipusa);
+  const slices = splitSlices(r.szeletek_szama);
+
+  if (!items.length) {
+    return `
+      <div>—</div>
+      <div class="small text-muted">—</div>
+    `;
+  }
+
+  // 1 tétel: nincs lenyitás
+  if (items.length === 1) {
+    const s = slices[0] || '';
+    return `
+      <div>${items[0]}</div>
+      <div class="small text-muted">
+        ${s ? s + ' szelet' : '—'}
+      </div>
+    `;
+  }
+
+  // Több sor -> mennyiségösszegzés
+  const totalCount = items.reduce((sum, t) => sum + parseQtyFromItemText(t), 0);
+  const id = `tortaitem-${r.sorszam || Math.random().toString(36).slice(2)}`;
+
+  return `
+    <div>
+      <span class="item-toggle badge badge-light cursor"
+            data-toggle="collapse"
+            href="#${id}"
+            role="button"
+            aria-expanded="false"
+            aria-controls="${id}">
+        ${totalCount} tétel
+        <i class="fa-solid fa-chevron-down"></i>
+      </span>
+    </div>
+    <div id="${id}" class="collapse mt-1">
+      ${items.map((t, i) => {
+        const s = slices[i] || '';
+        return `
+          <div>
+            <small>
+              ${t}
+              ${s ? `<span class="text-muted"> · ${s} szelet</span>` : ''}
+            </small>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+
+
+
 
         // --- NEW renderer for the compact table ---
         function renderTable() {
@@ -646,11 +801,10 @@ if (isPaidYes && isStatusAtveve) {
 </td>
 
 <td>
-  <div>${r.torta_tipusa || '—'}</div>
-  <div class="small text-muted">
-    ${r.szeletek_szama ? r.szeletek_szama + ' szelet' : '—'}
-  </div>
+  ${renderTortaCell(r)}
 </td>
+
+
 
 
       <td>${extras}</td>
@@ -853,15 +1007,44 @@ if (isPaidYes && isStatusAtveve) {
             showAlert('success', 'Fizetés státusz frissítve');
         }
 
+        function setupSorting() {
+  const thead = document.querySelector('thead');
+  if (!thead) return;
 
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchOrders();
-            document.getElementById('searchBox').addEventListener('input', applyFilters);
-            document.getElementById('statusFilter').addEventListener('change', applyFilters);
-            document.getElementById('paidFilter').addEventListener('change', applyFilters);
-            document.getElementById('btnSave').addEventListener('click', saveEdit);
-            document.getElementById('dateFilter').addEventListener('change', applyFilters); 
-        });
+  thead.addEventListener('click', (e) => {
+    const th = e.target.closest('.sortable');
+    if (!th) return;
+
+    const key = th.getAttribute('data-sort');
+    if (!key) return;
+
+    if (state.sortKey === key) {
+      // ugyanarra az oszlopra kattint -> irány váltás
+      state.sortDir = (state.sortDir === 'asc') ? 'desc' : 'asc';
+    } else {
+      // új oszlop -> alapból növekvő
+      state.sortKey = key;
+      state.sortDir = 'asc';
+    }
+
+    sortFiltered();
+    renderTable();
+  });
+}
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    fetchOrders();
+    document.getElementById('searchBox').addEventListener('input', applyFilters);
+    document.getElementById('statusFilter').addEventListener('change', applyFilters);
+    document.getElementById('paidFilter').addEventListener('change', applyFilters);
+    document.getElementById('dateFilter').addEventListener('change', applyFilters);
+    document.getElementById('btnSave').addEventListener('click', saveEdit);
+
+    setupSorting();   // ⬅️ új
+});
+
     </script>
 </body>
 
