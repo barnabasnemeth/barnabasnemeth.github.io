@@ -1440,10 +1440,6 @@
     });
   }
 
-  function syncRushHelper() {
-    $('rushHelper').hidden = $('setChargeRush').checked;
-  }
-
   function renderSlots() {
     const list = $('slotsList');
     list.replaceChildren();
@@ -1502,8 +1498,7 @@
       const settings = settingsRes.data;
       $('setLead').value = settings.min_lead_days;
       $('setRushDays').value = settings.rush_within_days;
-      $('setRushFee').value = settings.rush_surcharge_huf ?? '';
-      $('setChargeRush').checked = settings.charge_rush_surcharge;
+      $('setRushNoticeFee').value = settings.rush_surcharge_huf ?? 0;
       $('setMonday').checked = settings.block_cakes_on_monday;
       $('setCandle').value = settings.candle_unit_price_huf;
       $('setBox').value = settings.box_price_huf;
@@ -1516,7 +1511,6 @@
       $('setMondayMsg').value = settings.monday_block_message || '';
       $('setPlaceholder').value = settings.placeholder_image_url || '';
       updatePlaceholderPreview();
-      syncRushHelper();
       state.slots = slotsRes.data || [];
       state.blackouts = blackoutRes.data || [];
       renderSlots();
@@ -1774,14 +1768,19 @@
         block_cakes_on_monday: $('setMonday').checked
       }, event.submitter);
     });
-    $('rushForm').addEventListener('submit', (event) => {
-      event.preventDefault();
+    $('rushNoticeSave').addEventListener('click', () => {
+      const raw = $('setRushNoticeFee').value.trim();
+      const fee = raw === '' ? 0 : Number(raw);
+      if (!Number.isFinite(fee) || fee < 0 || Math.round(fee) !== fee) {
+        toast('error', 'A sürgősségi felár csak 0 vagy pozitív egész szám lehet.');
+        return;
+      }
       saveSettings({
-        rush_surcharge_huf: $('setRushFee').value === '' ? null : Number($('setRushFee').value),
-        charge_rush_surcharge: $('setChargeRush').checked
-      }, event.submitter);
+        guest_notice_rush: $('setRushNotice').value,
+        rush_surcharge_huf: fee,
+        charge_rush_surcharge: fee > 0
+      }, $('rushNoticeSave'));
     });
-    $('setChargeRush').addEventListener('change', syncRushHelper);
     $('priceForm').addEventListener('submit', (event) => {
       event.preventDefault();
       saveSettings({

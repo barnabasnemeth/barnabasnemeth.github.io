@@ -133,12 +133,30 @@
       .replace(/>/g, '&gt;');
   }
 
+  function formatAdminFee(amount) {
+    const value = Math.round(Number(amount));
+    if (!Number.isFinite(value)) return '';
+    return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' Ft';
+  }
+
+  function rushNoticeFromSettings(cfg) {
+    const text = String(cfg.guest_notice_rush || '').trim();
+    const fee = Number(cfg.rush_surcharge_huf);
+    if (!text || !Number.isFinite(fee) || fee <= 0) return '';
+    const formatted = formatAdminFee(fee);
+    if (!formatted) return text;
+    if (/\d[\d.\s\u00a0\u202f]*\s*Ft/i.test(text)) {
+      return text.replace(/\d[\d.\s\u00a0\u202f]*\s*Ft/i, formatted);
+    }
+    return text;
+  }
+
   function cremesApplyOrderCopy(data) {
     const cfg = data.settings || {};
     const list = document.querySelector('.guest-notice-list');
     if (list) {
       list.replaceChildren();
-      [cfg.guest_notice_allergy, cfg.guest_notice_rush].forEach(text => {
+      [cfg.guest_notice_allergy, rushNoticeFromSettings(cfg)].forEach(text => {
         if (!text) return;
         const li = document.createElement('li');
         li.textContent = text;
@@ -180,6 +198,7 @@
       .then(data => {
         cremesApplyOrderCopy(data);
         if (typeof window.updatePickupSlots === 'function') window.updatePickupSlots();
+        if (typeof window.renderOrderItemsTable === 'function') window.renderOrderItemsTable();
       })
       .catch(err => console.error('Rendelési adatok betöltése sikertelen:', err));
   });

@@ -420,6 +420,38 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    function formatAdminFee(amount) {
+        const value = Math.round(Number(amount));
+        if (!Number.isFinite(value)) return '';
+        return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' Ft';
+    }
+
+    function rushNoticeFromSettings(settings) {
+        const text = String(settings?.guest_notice_rush || '').trim();
+        const fee = Number(settings?.rush_surcharge_huf);
+        if (!text || !Number.isFinite(fee) || fee <= 0) return '';
+        const formatted = formatAdminFee(fee);
+        if (!formatted) return text;
+        if (/\d[\d.\s\u00a0\u202f]*\s*Ft/i.test(text)) {
+            return text.replace(/\d[\d.\s\u00a0\u202f]*\s*Ft/i, formatted);
+        }
+        return text;
+    }
+
+    function renderCakeGuestNotices(settings) {
+        const list = document.getElementById('cake-guest-notices');
+        if (!list) return;
+        list.replaceChildren();
+        [settings?.guest_notice_allergy, rushNoticeFromSettings(settings)].forEach(text => {
+            const value = String(text || '').trim();
+            if (!value) return;
+            const item = document.createElement('li');
+            item.textContent = value;
+            list.appendChild(item);
+        });
+        list.hidden = list.children.length === 0;
+    }
+
     function normalizeForMatch(text) {
         return String(text)
             .toLowerCase()
@@ -435,8 +467,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const client = window.cremesSupabase();
             const [hoursRes, settingsRes] = await Promise.all([
                 client.from('opening_hours').select('day_label,opens_at,closes_at,is_closed').order('sort_order'),
-                client.from('order_settings').select('opening_notice').eq('id', 1).single()
+                client.from('order_settings').select('opening_notice,guest_notice_allergy,guest_notice_rush,rush_surcharge_huf').eq('id', 1).single()
             ]);
+            if (!settingsRes.error) renderCakeGuestNotices(settingsRes.data);
             if (hoursRes.error) throw hoursRes.error;
             if (settingsRes.error) throw settingsRes.error;
 

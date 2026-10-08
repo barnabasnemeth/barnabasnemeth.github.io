@@ -855,6 +855,8 @@ body.modal-open { overflow: hidden; }
 
 .acc-panel { padding: 0 0 14px; }
 
+.acc-panel .field { margin-bottom: 12px; }
+
 .notice {
   margin-top: 10px;
   padding: 10px 12px;

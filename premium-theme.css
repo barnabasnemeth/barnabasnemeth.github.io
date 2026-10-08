@@ -2368,7 +2368,11 @@ body.order-page {
     border-top: 1px solid rgba(185, 150, 104, .22);
     padding-top: 1.5rem;
 }
-.cake-collection .cake-collection__note { margin: 0; max-width: 33rem; font-size: .72rem; line-height: 1.8; color: var(--brown-muted); }
+.cake-collection__notes { max-width: 36rem; min-width: 0; }
+.cake-collection .cake-collection__note { margin: 0; font-size: .72rem; line-height: 1.8; color: var(--brown-muted); }
+.cake-collection__notices { margin: .7rem 0 0; padding: 0; list-style: none; }
+.cake-collection__notices li { margin: 0; font-size: .72rem; line-height: 1.8; color: var(--brown-muted); }
+.cake-collection__notices li + li { margin-top: .35rem; }
 .cake-collection .cake-collection__order {
     display: inline-flex;
     justify-content: center;

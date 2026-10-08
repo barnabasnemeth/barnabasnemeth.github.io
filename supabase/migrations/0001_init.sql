@@ -116,8 +116,8 @@ create table public.order_settings (
   id smallint primary key default 1,
   min_lead_days integer not null default 2,
   rush_within_days integer not null default 5,
-  rush_surcharge_huf integer,
-  charge_rush_surcharge boolean not null default false,
+  rush_surcharge_huf integer default 3000,
+  charge_rush_surcharge boolean not null default true,
   block_cakes_on_monday boolean not null default true,
   candle_unit_price_huf integer not null default 0,
   box_price_huf integer not null default 0,
@@ -361,6 +361,11 @@ declare
   v_grand integer;
   v_order_id uuid;
   v_order_number integer;
+  v_max_order integer;
+  v_seq_last bigint;
+  v_seq_called boolean;
+  v_seq_next bigint;
+  v_number_guard integer := 0;
   v_sort integer := 0;
   v_line_total integer;
 begin
@@ -642,7 +647,36 @@ begin
     end if;
   end if;
 
+  -- Imported rows can leave the sequence behind the highest real order number.
+  -- Numbers at 10000 and above are legacy collision ids and stay outside it.
+  perform pg_advisory_xact_lock(84122001::bigint);
+
+  select coalesce(max(order_number), 0)
+    into v_max_order
+  from public.orders
+  where order_number < 10000;
+
+  select last_value, is_called
+    into v_seq_last, v_seq_called
+  from public.order_number_seq;
+
+  v_seq_next := case when v_seq_called then v_seq_last + 1 else v_seq_last end;
+
+  if v_max_order >= v_seq_next then
+    perform setval('public.order_number_seq', v_max_order, true);
+  end if;
+
   v_order_number := nextval('public.order_number_seq');
+  while exists (
+    select 1 from public.orders where order_number = v_order_number
+  ) loop
+    v_number_guard := v_number_guard + 1;
+    if v_number_guard > 1000 then
+      raise exception 'Nem sikerült szabad rendelésszámot adni.';
+    end if;
+    v_order_number := nextval('public.order_number_seq');
+  end loop;
+
   v_order_id := gen_random_uuid();
 
   insert into public.orders (
@@ -1127,17 +1161,17 @@ insert into public.order_settings (
   2,
   5,
   3000,
-  false,
+  true,
   true,
   400,
   490,
   990,
   '',
   'Műhelyünkben a keresztszennyeződés lehetőségét teljes mértékben kizárni nem tudjuk, ezért kérjük, hogy allergia vagy ételintolerancia esetén rendelés előtt ezt mindenképpen vegyék figyelembe.',
-  '5 napon belüli átvételi időpont esetén a rendelés rövid határidősnek minősül. Ennek részleteiről a rendelés visszaigazolásakor egyeztetünk.',
+  'A rendeléstől számított 5 napon belüli átvétel esetén 3.000 Ft sürgősségi felárat számítunk fel. A rövid határidős rendelés részleteiről a visszaigazoláskor egyeztetünk.',
   'Minden torta frissen és gondosan készül, ezért 48 órán belül nem tudunk tortát átadni. Emellett hétfőre torta nem rendelhető, szezonális termékeink viszont továbbra is elérhetők.',
   'Figyelem! 5 napon belüli átvételi időpont esetén rövid határidős felár kerül felszámításra.',
-  'A rövid határidős felár mértéke egyeztetés tárgya.',
+  'A sürgősségi felár a rövid határidős átvétel miatt kerül a végösszeghez.',
   'Hétfőn a cukrászda zárva tart, ezért torta nem választható erre a napra. Ünnepi szezonális termékeink azonban hétfőre is rendelhetők.',
   'https://cremesdessert.com/images/logo-white.png'
 );

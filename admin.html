@@ -267,6 +267,7 @@
                                             <input id="setRushDays" class="input" type="number" min="0" max="60" inputmode="numeric" required>
                                             <span>napon belül</span>
                                         </div>
+                                        <p class="hint">Ezen a határidőn belüli átvételnél a sürgősségi felár kerül a végösszeghez.</p>
                                     </div>
                                 </div>
                                 <label class="switch" style="margin-top:14px">
@@ -275,27 +276,6 @@
                                     <span class="switch-text"></span>
                                     <span class="switch-label">Hétfőn szeletes torta nem rendelhető</span>
                                 </label>
-                                <button class="btn btn-primary" type="submit">Mentés</button>
-                            </form>
-
-                            <form id="rushForm" class="surface surface-pad settings-card">
-                                <h2>Rövid határidős rendelés</h2>
-                                <div class="field">
-                                    <label for="setRushFee">Felár</label>
-                                    <div class="input-affix">
-                                        <input id="setRushFee" class="input" type="number" min="0" inputmode="numeric">
-                                        <span>Ft</span>
-                                    </div>
-                                    <p class="hint">Üresen hagyva a felár mező a rendelésen üres marad.</p>
-                                </div>
-                                <label class="switch" style="margin-top:12px">
-                                    <input id="setChargeRush" type="checkbox">
-                                    <span class="switch-track" aria-hidden="true"></span>
-                                    <span class="switch-text"></span>
-                                    <span class="switch-label">Felár automatikus felszámítása</span>
-                                </label>
-                                <p id="rushHelper" class="notice" hidden>Jelenleg a rendszer csak megjelöli a rendelést rövid határidősként. Felárat nem számít hozzá.</p>
-                                <p class="hint" style="margin-top:8px">A vendégnek szóló szövegek ettől függetlenül átírhatók.</p>
                                 <button class="btn btn-primary" type="submit">Mentés</button>
                             </form>
 
@@ -339,8 +319,19 @@
                                 <div class="acc">
                                     <button class="acc-btn" type="button" data-accordion aria-expanded="false" aria-controls="acc-rush">Sürgősségi tájékoztató <span class="chev" aria-hidden="true">›</span></button>
                                     <div id="acc-rush" class="acc-panel" hidden>
-                                        <textarea id="setRushNotice" class="textarea" maxlength="1000"></textarea>
-                                        <button class="btn btn-primary" type="button" data-save-setting="guest_notice_rush" data-field="setRushNotice">Mentés</button>
+                                        <div class="field">
+                                            <label for="setRushNoticeFee">Sürgősségi felár</label>
+                                            <div class="input-affix">
+                                                <input id="setRushNoticeFee" class="input" type="number" min="0" step="1" inputmode="numeric" required>
+                                                <span>Ft</span>
+                                            </div>
+                                            <p class="hint">Ha az átvétel a rendeléstől számított rövid határidőn belül van, ez az összeg hozzáadódik a végösszeghez. 0 esetén nincs felár.</p>
+                                        </div>
+                                        <div class="field">
+                                            <label for="setRushNotice">Tájékoztató szövege</label>
+                                            <textarea id="setRushNotice" class="textarea" maxlength="1000"></textarea>
+                                        </div>
+                                        <button class="btn btn-primary" type="button" id="rushNoticeSave">Mentés</button>
                                     </div>
                                 </div>
                                 <div class="acc">

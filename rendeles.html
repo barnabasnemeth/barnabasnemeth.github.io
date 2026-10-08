@@ -1788,6 +1788,21 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
         tbody.appendChild(tr);
     });
 
+    const rushFee = typeof rushFeeHuf === 'function' ? rushFeeHuf() : 0;
+    if (rushFee > 0) {
+        knownSubtotal += rushFee;
+        const rushRow = document.createElement('tr');
+        rushRow.innerHTML = `
+            <td>Sürgősségi felár</td>
+            <td class="text-nowrap d-none d-sm-table-cell">—</td>
+            <td class="text-nowrap">1</td>
+            <td class="text-right d-none d-sm-table-cell">${fmtFt(rushFee)}</td>
+            <td class="text-right">${fmtFt(rushFee)}</td>
+            <td class="text-right small text-muted">Rövid határidő</td>
+        `;
+        tbody.appendChild(rushRow);
+    }
+
     // Meta: összes tétel (torta + extra)
     const totalLines = orderItems.length + extras.length;
     metaEl.textContent =
@@ -2175,12 +2190,9 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
                 if ((tortadobozAr || 0) > 0) { dobozKnown = true; dobozOssz = toInt(tortadobozAr); }
             }
 
-            // 5) RÖVID HATÁRIDŐ jelzés
+            // 5) RÖVID HATÁRIDŐ – a beállított sürgősségi felár
             const rush = isRushPickup();
-            const rushCfg = (window.CREMES_ORDER && window.CREMES_ORDER.settings) || {};
-            const rushFelar = (rush && rushCfg.charge_rush_surcharge && rushCfg.rush_surcharge_huf != null)
-                ? Number(rushCfg.rush_surcharge_huf)
-                : '';
+            const rushFelar = rush ? rushFeeHuf() : 0;
 
             // 6) RÉSZÖSSZEG (csak ismert tételek)
             const reszosszegIsmertek = toInt(
@@ -2198,10 +2210,8 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
 
             let vegosszeg = '';
             if (vanBarmilyenTorta && mindenTortaAraIsmert && extrasKnown) {
-                if (!rush) {
-                    vegosszeg = String(reszosszegIsmertek);
-                } else if (typeof rushFelar === 'number' && isFinite(rushFelar) && rushFelar >= 0) {
-                    vegosszeg = String(reszosszegIsmertek + rushFelar);
+                if (!rush || rushFelar > 0) {
+                    vegosszeg = String(reszosszegIsmertek + (rush ? rushFelar : 0));
                 }
             }
 
@@ -2211,7 +2221,7 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
                 tuzijatek_ossz_HUF: tuziKnown ? String(tuziOssz) : '',
                 tortadoboz_ossz_HUF: dobozKnown ? String(dobozOssz) : '',
                 rovid_hataridos: rush ? 'igen' : 'nem',
-                rovid_hataridos_felar_HUF: (typeof rushFelar === 'number' && isFinite(rushFelar)) ? String(rushFelar) : '',
+                rovid_hataridos_felar_HUF: rushFelar > 0 ? String(rushFelar) : '',
                 reszosszeg_ismertek_HUF: reszosszegIsmertek ? String(reszosszegIsmertek) : '',
                 vegosszeg_HUF: vegosszeg
             };
@@ -2239,12 +2249,16 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
             }
 
             function checkUrgency() {
-                if (!atvetelInput.value) return;
+                if (!atvetelInput.value) {
+                    if (typeof renderOrderItemsTable === 'function') renderOrderItemsTable();
+                    return;
+                }
                 if (typeof cremesIsRush === 'function' ? cremesIsRush(atvetelInput.value) : false) {
                     warning.classList.remove('d-none');
                 } else {
                     warning.classList.add('d-none');
                 }
+                if (typeof renderOrderItemsTable === 'function') renderOrderItemsTable();
             }
 
             // Init
@@ -2623,11 +2637,19 @@ function hasCakeItemInCart() {
 
 
 
-        // rövid határidő (5 napon belül) – csak jelzés, ár nélkül
         function isRushPickup() {
             const val = document.getElementById('atvetel_napja').value;
             if (!val || typeof cremesIsRush !== 'function') return false;
             return cremesIsRush(val);
+        }
+
+        function rushFeeHuf() {
+            if (!isRushPickup()) return 0;
+            const cfg = (window.CREMES_ORDER && window.CREMES_ORDER.settings) || {};
+            if (!cfg.charge_rush_surcharge) return 0;
+            const fee = Number(cfg.rush_surcharge_huf);
+            if (!Number.isFinite(fee) || fee <= 0) return 0;
+            return Math.round(fee);
         }
 
         // összeg gyűjtése és modal kirajzolása
@@ -2780,6 +2802,11 @@ customerBox.innerHTML = `
                 addLine('Tortadoboz', 1, unit || null, unit || null, unit ? '' : 'Egyedi árazás', 1);
             }
 
+            const rushFee = rushFeeHuf();
+            if (rushFee > 0) {
+                addLine('Sürgősségi felár', '1', rushFee, rushFee, 'Rövid határidős átvétel', 0);
+            }
+
 
             // Igények (HACCP, Áfás számla)
             const requests = [];
@@ -2819,7 +2846,7 @@ customerBox.innerHTML = `
 
             const rushCfgText = (window.CREMES_ORDER && window.CREMES_ORDER.settings) || {};
             const rushMsg = isRushPickup()
-                ? (rushCfgText.rush_summary_text || 'A rövid határidős felár mértéke egyeztetés tárgya.')
+                ? (rushCfgText.rush_summary_text || '')
                 : '';
 
             const noteLines = [];
