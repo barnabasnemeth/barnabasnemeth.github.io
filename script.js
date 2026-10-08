@@ -165,8 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Kínálatunk fetch
 document.addEventListener('DOMContentLoaded', async () => {
-    const pricingSheetUrl = 'https://docs.google.com/spreadsheets/d/1QZOUq7eYXNSwd3CkgJmQMCGrDCxqQ7FO2RmozPnQWkM/gviz/tq?sheet=tortak&tqx=out:json';
-    const extraSheetUrl = 'https://docs.google.com/spreadsheets/d/1QZOUq7eYXNSwd3CkgJmQMCGrDCxqQ7FO2RmozPnQWkM/gviz/tq?sheet=egyeb&tqx=out:json';
     const SLICE_SIZES = [8, 12, 16, 24];
 
     function escapeHtml(str) {
@@ -273,40 +271,56 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
     }
 
+    function pricesFromProduct(row) {
+        const prices = {};
+        let unitPrice = null;
+        (row.product_prices || []).forEach(price => {
+            if (price.slices == null) unitPrice = Number(price.price_huf);
+            else prices[price.slices] = Number(price.price_huf);
+        });
+        return {
+            prices,
+            rawPriceText: unitPrice != null && !Object.keys(prices).length ? formatPriceHu(unitPrice) : ''
+        };
+    }
+
+    function formatPogacsaAmount(num) {
+        const rounded = Math.round(Number(num));
+        if (!Number.isFinite(rounded)) return '–';
+        return String(rounded).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',-';
+    }
+
+    function formatMinQty(quantity, unit) {
+        const n = Number(quantity);
+        if (!Number.isFinite(n)) return '';
+        const text = Number.isInteger(n) ? String(n) : String(n).replace('.', ',');
+        return text + ' ' + (unit || '');
+    }
+
     async function fetchPricingData() {
         const pricingTableBody = document.getElementById('pricing-table-body');
         const pricingCards = document.getElementById('pricing-cards');
 
         try {
-            const response = await fetch(pricingSheetUrl);
-            const text = await response.text();
-            const data = JSON.parse(text.substring(47, text.length - 2));
-            const rows = data.table.rows;
+            const client = window.cremesSupabase();
+            const { data, error } = await client
+                .from('products')
+                .select('name,dietary_tags,show_on_homepage,product_prices(slices,price_huf)')
+                .eq('is_available', true)
+                .eq('show_on_homepage', true)
+                .order('sort_order');
+            if (error) throw error;
 
-            rows.slice(1).forEach(row => {
-                const name = String(row.c[0]?.v ?? '').trim();
-                if (!name) {
-                    return;
-                }
-
-                const exemption = row.c[1]?.v || '';
-                const priceCell = row.c[2]?.v || '';
-                const showOnIndexRaw = row.c[3]?.v || '';
-                const showOnIndex = String(showOnIndexRaw).toLowerCase();
-
-                if (showOnIndex === 'no' || showOnIndex === 'false' || showOnIndex === 'hide') {
-                    return;
-                }
-
-                const badges = parseBadges(exemption);
-                const prices = parsePriceTriple(priceCell);
+            (data || []).forEach(row => {
+                const name = String(row.name || '').trim();
+                if (!name) return;
+                const parsed = pricesFromProduct(row);
                 const item = {
                     name,
-                    badges,
-                    prices,
-                    rawPriceText: String(priceCell).trim(),
+                    badges: parseBadges(row.dietary_tags || ''),
+                    prices: parsed.prices,
+                    rawPriceText: parsed.rawPriceText
                 };
-
                 pricingTableBody.insertAdjacentHTML('beforeend', buildTableRow(item));
                 pricingCards.insertAdjacentHTML('beforeend', buildMobileCard(item));
             });
@@ -318,22 +332,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-
-    // Async function to fetch and populate the "Egyéb" list
     async function fetchExtraData() {
         try {
-            const response = await fetch(extraSheetUrl);
-            const text = await response.text();
-            const data = JSON.parse(text.substring(47, text.length - 2));
+            const client = window.cremesSupabase();
+            const { data, error } = await client
+                .from('homepage_extras')
+                .select('name')
+                .eq('is_visible', true)
+                .order('sort_order');
+            if (error) throw error;
+
             const extraList = document.getElementById('extra-list');
-            const rows = data.table.rows;
-
-            rows.slice(1).forEach(row => {
-                const itemName = String(row.c[0]?.v ?? '').trim();
-                if (!itemName) {
-                    return;
-                }
-
+            (data || []).forEach(row => {
+                const itemName = String(row.name || '').trim();
+                if (!itemName) return;
                 const listItem = document.createElement('li');
                 listItem.className = 'extras-list__item';
                 listItem.textContent = itemName;
@@ -345,15 +357,68 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Execute both fetch operations concurrently
-    await Promise.all([fetchPricingData(), fetchExtraData()]);
-});
+    function renderPogacsa(rows) {
+        const featuredHeading = document.getElementById('pogacsa-featured-heading');
+        const featured = document.getElementById('pogacsa-featured');
+        const offers = document.getElementById('pogacsa-offers');
+        if (!featured || !offers) return;
 
+        featured.replaceChildren();
+        offers.replaceChildren();
 
+        const visible = (rows || []).filter(row => row.is_available !== false);
+        const featuredRows = visible.filter(row => row.is_featured);
+        const listRows = visible.filter(row => !row.is_featured);
 
-// Nyitvatartás fetch
-document.addEventListener('DOMContentLoaded', async () => {
-    const openingHoursSheetUrl = 'https://docs.google.com/spreadsheets/d/1QZOUq7eYXNSwd3CkgJmQMCGrDCxqQ7FO2RmozPnQWkM/gviz/tq?sheet=nyitvatartas&tqx=out:json';
+        if (featuredHeading) featuredHeading.hidden = featuredRows.length === 0;
+
+        featuredRows.forEach(row => {
+            const article = document.createElement('article');
+            article.className = 'extras-feature-card';
+            const minText = formatMinQty(row.min_order_quantity, row.quantity_unit);
+            const media = row.image_url
+                ? `<div class="extras-feature-card__media"><img src="${escapeHtml(row.image_url)}" alt="${escapeHtml(row.name)}" class="extras-feature-card__img" /></div>`
+                : '';
+            article.innerHTML = `
+                ${media}
+                <div class="extras-feature-card__body">
+                    <h6 class="extras-feature-card__name">${escapeHtml(row.name)}</h6>
+                    <p class="extras-feature-card__meta">Min. rendelési mennyiség: <strong>${escapeHtml(minText)}</strong></p>
+                    <p class="extras-feature-card__price"><span class="extras-feature-card__amount">${formatPogacsaAmount(row.price_huf)}</span> ${escapeHtml(row.price_unit_label || '')}</p>
+                </div>`;
+            featured.appendChild(article);
+        });
+
+        listRows.forEach(row => {
+            const li = document.createElement('li');
+            li.className = 'pogacsa-offers__item';
+            const minText = 'Min. rendelési mennyiség: ' + formatMinQty(row.min_order_quantity, row.quantity_unit);
+            li.innerHTML = `
+                <div class="pogacsa-offers__copy">
+                    <p class="pogacsa-offers__name">${escapeHtml(row.name)}</p>
+                    <p class="pogacsa-offers__meta">${escapeHtml(minText)}</p>
+                </div>
+                <p class="pogacsa-offers__price"><span class="pogacsa-offers__amount">${formatPogacsaAmount(row.price_huf)}</span> ${escapeHtml(row.price_unit_label || '')}</p>`;
+            offers.appendChild(li);
+        });
+    }
+
+    async function fetchPogacsa() {
+        try {
+            const client = window.cremesSupabase();
+            const { data, error } = await client
+                .from('pogacsa_products')
+                .select('name,price_huf,min_order_quantity,quantity_unit,price_unit_label,image_url,is_featured,is_available,sort_order')
+                .eq('is_available', true)
+                .order('sort_order');
+            if (error) throw error;
+            renderPogacsa(data || []);
+        } catch (error) {
+            console.error('Error fetching pogácsa:', error);
+            const offers = document.getElementById('pogacsa-offers');
+            if (offers) offers.innerHTML = '<li class="pogacsa-offers__item">Hiba történt az adatok betöltése közben.</li>';
+        }
+    }
 
     function normalizeForMatch(text) {
         return String(text)
@@ -362,46 +427,44 @@ document.addEventListener('DOMContentLoaded', async () => {
             .replace(/[\u0300-\u036f]/g, '');
     }
 
-    try {
-        const openingHoursResponse = await fetch(openingHoursSheetUrl);
-        const openingHoursText = await openingHoursResponse.text();
-        const openingHoursData = JSON.parse(openingHoursText.substring(47, openingHoursText.length - 2));
-        const openingHoursRows = openingHoursData.table.rows;
+    async function fetchOpeningHours() {
         const openingHoursList = document.getElementById('opening-hours-list');
         const openingHoursWrapper = document.getElementById('opening-hours-wrapper');
         const openingHoursMessage = document.getElementById('opening-hours-message');
+        try {
+            const client = window.cremesSupabase();
+            const [hoursRes, settingsRes] = await Promise.all([
+                client.from('opening_hours').select('day_label,opens_at,closes_at,is_closed').order('sort_order'),
+                client.from('order_settings').select('opening_notice').eq('id', 1).single()
+            ]);
+            if (hoursRes.error) throw hoursRes.error;
+            if (settingsRes.error) throw settingsRes.error;
 
-        const dataRows = openingHoursRows.slice(1);
-        const globalMessage = String(dataRows[0]?.c[3]?.v || '').trim();
+            (hoursRes.data || []).forEach(row => {
+                const day = row.day_label || 'N/A';
+                const listItem = row.is_closed
+                    ? `<li>${escapeHtml(day)}: Zárva</li>`
+                    : `<li>${escapeHtml(day)}: ${escapeHtml(row.opens_at || '')} - ${escapeHtml(row.closes_at || '')}</li>`;
+                openingHoursList.insertAdjacentHTML('beforeend', listItem);
+            });
 
-        dataRows.forEach(row => {
-            const day = row.c[0]?.v || 'N/A';
-            const openTime = row.c[1]?.v || '';
-            const closeTime = row.c[2]?.v || '';
-
-            let listItem;
-            if (String(openTime).toLowerCase() === 'zárva') {
-                listItem = `<li>${day}: Zárva</li>`;
-            } else {
-                listItem = `<li>${day}: ${openTime} - ${closeTime}</li>`;
+            const globalMessage = String(settingsRes.data?.opening_notice || '').trim();
+            if (globalMessage && openingHoursMessage && openingHoursWrapper) {
+                openingHoursMessage.textContent = globalMessage;
+                openingHoursMessage.hidden = false;
+                if (normalizeForMatch(globalMessage).includes('zarva')) {
+                    openingHoursWrapper.classList.add('opening-hours-closed-warning');
+                }
             }
-
-            openingHoursList.insertAdjacentHTML('beforeend', listItem);
-        });
-
-        if (globalMessage && openingHoursMessage && openingHoursWrapper) {
-            openingHoursMessage.textContent = globalMessage;
-            openingHoursMessage.hidden = false;
-
-            if (normalizeForMatch(globalMessage).includes('zarva')) {
-                openingHoursWrapper.classList.add('opening-hours-closed-warning');
+        } catch (error) {
+            console.error('Error fetching or processing opening hours data:', error);
+            if (openingHoursList) {
+                openingHoursList.innerHTML = '<li>Hiba történt az adatok betöltése közben.</li>';
             }
         }
-
-    } catch (error) {
-        console.error('Error fetching or processing opening hours data:', error);
-        document.getElementById('opening-hours-list').innerHTML = '<li>Hiba történt az adatok betöltése közben.</li>';
     }
+
+    await Promise.all([fetchPricingData(), fetchExtraData(), fetchPogacsa(), fetchOpeningHours()]);
 });
 
 

@@ -25,6 +25,7 @@
     rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="premium-theme.css" />
+  <link rel="stylesheet" href="landing-theme.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@glidejs/glide/dist/css/glide.core.min.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@glidejs/glide/dist/css/glide.theme.min.css" />
   <link rel="preload" as="image" href="/images/carousel-1.jpg" />
@@ -73,19 +74,13 @@
 </head>
 
 
-<body>
-  <nav class="navbar navbar-expand-lg navbar-light fixed-top transparent">
+<body class="landing-page">
+  <nav class="navbar navbar-expand-lg navbar-light fixed-top transparent" aria-label="Fő navigáció">
     <div class="container-fluid">
-      <div class="social-icons">
-        <a href="https://www.facebook.com/profile.php?id=61561087531875" target="_blank" class="social-icon d-none">
-          <i class="fab fa-facebook-f"></i>
-        </a>
-        <!-- <a href="https://www.tiktok.com" target="_blank" class="social-icon d-none">
-                <i class="fab fa-tiktok"></i>
-            </a> -->
-        <a href="https://www.instagram.com/cremes.dessert/" target="_blank" class="social-icon d-none">
-          <i class="fab fa-instagram"></i>
-        </a>
+      <a class="landing-brand" href="#landing" aria-label="Créme's Dessert — főoldal"><span>Créme's</span><small>dessert</small></a>
+      <div class="navbar-social" aria-label="Közösségi oldalaink">
+        <a href="https://www.facebook.com/profile.php?id=61561087531875" class="navbar-social-link" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+        <a href="https://www.instagram.com/cremes.dessert/" class="navbar-social-link" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
       </div>
       <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav"
         aria-controls="navbarNav" aria-expanded="false" aria-label="Menü megnyitása">
@@ -160,17 +155,12 @@
       </div>
     </div>
 
-    <div class="hero-wave" aria-hidden="true">
-      <svg viewBox="0 0 1440 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-        <path class="hero-wave__back" d="M0,52 C240,98 420,8 720,44 C1020,80 1200,18 1440,48 L1440,100 L0,100 Z" />
-        <path class="hero-wave__front" d="M0,68 C300,18 480,88 720,52 C960,16 1140,78 1440,36 L1440,100 L0,100 Z" />
-      </svg>
-    </div>
+    <div class="hero-bottom"><a class="hero-discover" href="#about">Ismerjen meg minket <span aria-hidden="true">↓</span></a><div class="hero-controls" role="group" aria-label="Képgaléria vezérlése"><button type="button" data-target="#carouselExampleIndicators" data-slide="prev" aria-label="Előző kép">←</button><button type="button" data-target="#carouselExampleIndicators" data-slide="next" aria-label="Következő kép">→</button></div></div>
   </header>
 
   <section id="about" class="section-bg-offwhite">
     <div class="container">
-      <h2 class="section-title">Rólunk</h2>
+      <div class="collection-heading"><p class="collection-heading__eyebrow">A Créme’s története</p><h2 class="collection-heading__title">Rólunk</h2><span class="collection-heading__ornament" aria-hidden="true">✦</span></div>
       <div class="row">
         <div class="col-md-6">
           <p>
@@ -227,34 +217,43 @@
 
 <section id="kinalatunk">
   <div class="container">
-    <h2 class="section-title">Kínálatunk</h2>
+    <div class="collection-heading">
+      <p class="collection-heading__eyebrow">A műhelyből</p>
+      <h2 class="collection-heading__title">Kínálatunk</h2>
+      <span class="collection-heading__ornament" aria-hidden="true">✦</span>
+    </div>
 
     <!-- Introductory Text Section -->
-<div class="section-box">
-  <div class="row align-items-center justify-content-center">
-      <div class="col-md-8 text-container mb-4 mb-md-0">
-        <p class="text-md-right text-center text-justify">
-          Aktuális kínálatunk az elérhető torták szelet süteményként megtalálhatók a pultban, 
-              illetve idény és aktualitás szerint más finomságokkal is várjuk kedves vendégeinket.
-          </p>
+    <div class="section-box pastry-collection collection-intro">
+      <div class="collection-intro__copy">
+        <p class="cake-collection__eyebrow">Egy szelet Créme’s</p>
+        <h3 class="collection-intro__title">Apró örömök,<br />különleges ízek.</h3>
+        <p class="collection-intro__text">Tortáink szelet süteményként is megtalálhatók a pultban. Az évszakhoz és az alkalomhoz illő finomságokkal is várjuk kedves vendégeinket.</p>
+        <span class="collection-intro__signature"><span aria-hidden="true">✦</span> Fedezze fel aktuális kínálatunkat</span>
       </div>
-      <div class="col-md-4 d-flex justify-content-center">
-          <img src="/images/pultfoto.jpg" alt="Pult Photo" class="img-fluid rounded intro-image" />
+      <div class="collection-intro__media">
+        <img src="/images/pultfoto.jpg" alt="Díszített kézműves torta a Créme’s Dessert kínálatából" loading="lazy" />
       </div>
-  </div>
-</div>
+    </div>
 
 
     <!-- Tortáink Section -->
-    <div class="section-box">
-      <h4 class="section-subtitle text-center mb-4">Tortáink</h4>
+    <div class="section-box cake-collection" aria-labelledby="cake-collection-title">
+      <header class="cake-collection__header">
+        <div>
+          <p class="cake-collection__eyebrow">Créme’s Dessert · Kézműves torták</p>
+          <h3 id="cake-collection-title" class="cake-collection__title">Tortáink</h3>
+          <p class="cake-collection__intro">Különleges ízek, emlékezetes pillanatok.</p>
+        </div>
+        <span class="cake-collection__detail"><span aria-hidden="true">✦</span> Minden alkalomhoz</span>
+      </header>
       <div class="cake-pricing" id="cake-pricing">
         <div class="cake-pricing__desktop">
           <table class="cake-pricing__table">
             <caption class="sr-only">Torták árlistája</caption>
             <thead>
               <tr>
-                <th scope="col" class="cake-pricing__th-name">Név</th>
+                <th scope="col" class="cake-pricing__th-name">Ízvilág</th>
                 <th scope="col">8 szelet</th>
                 <th scope="col">12 szelet</th>
                 <th scope="col">16 szelet</th>
@@ -262,60 +261,55 @@
               </tr>
             </thead>
             <tbody id="pricing-table-body">
-              <!-- Google Sheets-ből töltődik -->
+              <!-- az árlista a Supabase termékekből töltődik -->
             </tbody>
           </table>
         </div>
         <div class="cake-pricing__mobile" id="pricing-cards" role="list" aria-label="Torták árlistája">
-          <!-- Google Sheets-ből töltődik -->
+          <!-- az árlista a Supabase termékekből töltődik -->
         </div>
       </div>
-      <p class="small-text">Készülnek: 8, 12, 16, 24 szeletesben</p>      
-      <p class="small-text">Áraink forintban értendők</p>
-
-
-      <!-- Notes Section -->
-      <div class="notes mt-3">
-        <p class="small-text">
-          Egyedi kérés esetén az árak módosulhatnak, a fent feltüntetett árak a csomagolás díját nem tartalmazzák!<br />
-          Az árváltozás jogát fenntartjuk!
-        </p>
-        <p class="small-text mt-2">
-          <strong>*CM</strong> - Cukormentes<br />
-          <strong>*GM</strong> - Gluténmentes<br />
-          <strong>*LM</strong> – Laktózmentes<br />
-          <strong>*VEGAN</strong> – Tejfehérje, tojás, méz, zselatin mentes
-        </p>
+      <div class="cake-collection__meta">
+        <p>8, 12, 16 és 24 szeletes méretben</p>
+        <p>Áraink forintban értendők</p>
       </div>
-      <div class="text-center mt-4">
-        <a href="/rendeles" class="btn btn-premium btn-premium-primary ajanlatkeres-btn">Rendelés</a>
+      <dl class="cake-collection__legend" aria-label="Mentességi jelölések">
+        <div><dt>CM</dt><dd>Cukormentes</dd></div>
+        <div><dt>GM</dt><dd>Gluténmentes</dd></div>
+        <div><dt>LM</dt><dd>Laktózmentes</dd></div>
+        <div><dt>VEGAN</dt><dd>Tejfehérje-, tojás-, méz- és zselatinmentes</dd></div>
+      </dl>
+      <div class="cake-collection__footer">
+        <p class="cake-collection__note">Egyedi kérés esetén az árak módosulhatnak. Az árak a csomagolás díját nem tartalmazzák. Az árváltozás jogát fenntartjuk.</p>
+        <a href="/rendeles" class="btn cake-collection__order">Tortarendelés <span aria-hidden="true">↗</span></a>
       </div>
     </div>
 
     <!-- További Kínálatok Section -->
-    <div class="section-box kinalat-extras mt-4">
-      <h4 class="section-subtitle text-center kinalat-extras__title">További kínálataink</h4>
+    <div class="section-box pastry-collection kinalat-extras" aria-labelledby="extras-collection-title">
+      <header class="cake-collection__header">
+        <div>
+          <p class="cake-collection__eyebrow">Édes és sós pillanatok</p>
+          <h3 id="extras-collection-title" class="cake-collection__title">További kínálataink</h3>
+          <p class="cake-collection__intro">Finomságok a hétköznapokra és az ünnepi asztalra.</p>
+        </div>
+        <span class="cake-collection__detail"><span aria-hidden="true">✦</span> A műhely válogatása</span>
+      </header>
 
-      <article class="extras-feature-card">
-        <div class="extras-feature-card__media">
-          <img src="/images/pogacsa.jpg" alt="Túrós-gouda sajtos apró pogácsa" class="extras-feature-card__img" />
-        </div>
-        <div class="extras-feature-card__body">
-          <span class="extras-badge">Kiemelt ajánlat</span>
-          <h5 class="extras-feature-card__name">Túrós-gouda sajtos apró pogácsa</h5>
-          <p class="extras-feature-card__meta">Min. rendelési mennyiség: <strong>0,5 kg</strong></p>
-          <p class="extras-feature-card__price"><span class="extras-feature-card__amount">8190,-</span> Ft / kg</p>
-        </div>
-      </article>
+      <div class="extras-featured">
+        <h4 class="extras-featured__heading" id="pogacsa-featured-heading">Kiemelt ajánlatok</h4>
+        <div id="pogacsa-featured"></div>
+        <ul class="pogacsa-offers" id="pogacsa-offers" aria-label="További pogácsa ajánlatok"></ul>
+      </div>
 
       <div class="extras-grid">
         <div class="extras-list-panel">
-          <h5 class="extras-list-panel__heading">Aktuális finomságok</h5>
+          <h4 class="extras-list-panel__heading">Aktuális finomságok</h4>
           <ul id="extra-list" class="extras-list" aria-label="További kínálat lista"></ul>
         </div>
         <div class="extras-showcase">
           <div class="extras-showcase__frame">
-            <img src="/images/tovabbi.jpg" alt="További kínálat" class="extras-showcase__img" />
+            <img src="/images/tovabbi.jpg" alt="Ízelítő a Créme’s Dessert további finomságaiból" class="extras-showcase__img" loading="lazy" />
           </div>
         </div>
       </div>
@@ -325,7 +319,7 @@
 
 <section id="rendeles" class="rendeles-highlight">
   <div class="container">
-    <h2 class="section-title text-center">Rendelés</h2>
+    <div class="collection-heading"><p class="collection-heading__eyebrow">Az alkalomhoz illő desszert</p><h2 class="collection-heading__title">Rendelés</h2><span class="collection-heading__ornament" aria-hidden="true">✦</span></div>
     <div class="section-box rendeles-cta-panel text-center">
       <p>Online is leadhatja rendelését néhány kattintással.</p>
       <p class="mb-4">
@@ -343,7 +337,7 @@
 
 <section id="gift-card">
   <div class="container">
-    <h2 class="section-title text-center">Ajándékutalvány</h2>
+    <div class="collection-heading"><p class="collection-heading__eyebrow">Ajándékozzon élményt</p><h2 class="collection-heading__title">Ajándékutalvány</h2><span class="collection-heading__ornament" aria-hidden="true">✦</span></div>
     <div class="text-center mt-4">
       <p>Ajándékutalványunkat kérje személyesen üzletünkben,</p>
       <p>hogy gasztro élményt ajándékozhasson.</p>
@@ -354,7 +348,7 @@
 
 <section id="events">
   <div class="container">
-    <h2 class="section-title text-center">Rendezvények</h2>
+    <div class="collection-heading"><p class="collection-heading__eyebrow">Együtt ünnepelni</p><h2 class="collection-heading__title">Rendezvények</h2><span class="collection-heading__ornament" aria-hidden="true">✦</span></div>
     <div class="row align-items-center mt-4">
       <!-- Text column -->
       <div class="col-md-6">
@@ -438,7 +432,7 @@
 <!-- Galéria Section with Glide.js -->
 <section id="galeria">
   <div class="container">
-    <h2 class="section-title text-center">Galéria</h2>
+    <div class="collection-heading"><p class="collection-heading__eyebrow">Pillanatok a műhelyből</p><h2 class="collection-heading__title">Galéria</h2><span class="collection-heading__ornament" aria-hidden="true">✦</span></div>
     <div id="galeriaGlide" class="glide">
       <div class="glide__track" data-glide-el="track">
         <ul class="glide__slides">
@@ -451,16 +445,16 @@
 
       <!-- Navigation Arrows -->
       <div class="glide__arrows" data-glide-el="controls">
-        <button class="glide__arrow glide__arrow--left" data-glide-dir="<">‹</button>
-        <button class="glide__arrow glide__arrow--right" data-glide-dir=">">›</button>
+        <button class="glide__arrow glide__arrow--left" data-glide-dir="<" aria-label="Előző galériakép">‹</button>
+        <button class="glide__arrow glide__arrow--right" data-glide-dir=">" aria-label="Következő galériakép">›</button>
       </div>
 
       <!-- Pagination Dots -->
       <div class="glide__bullets" data-glide-el="controls[nav]">
-        <button class="glide__bullet" data-glide-dir="=0"></button>
-        <button class="glide__bullet" data-glide-dir="=1"></button>
-        <button class="glide__bullet" data-glide-dir="=2"></button>
-        <button class="glide__bullet" data-glide-dir="=3"></button>
+        <button class="glide__bullet" data-glide-dir="=0" aria-label="1. galériakép"></button>
+        <button class="glide__bullet" data-glide-dir="=1" aria-label="2. galériakép"></button>
+        <button class="glide__bullet" data-glide-dir="=2" aria-label="3. galériakép"></button>
+        <button class="glide__bullet" data-glide-dir="=3" aria-label="4. galériakép"></button>
       </div>
     </div>
         <!-- FlickR Button -->
@@ -550,12 +544,12 @@
 
   <section id="visit">
     <div class="container">
-      <h2 class="section-title">Kapcsolat</h2>
+      <div class="collection-heading"><p class="collection-heading__eyebrow">Várjuk szeretettel</p><h2 class="collection-heading__title">Kapcsolat</h2><span class="collection-heading__ornament" aria-hidden="true">✦</span></div>
       <div class="row">
         <div class="col-md-8">
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2699.635952152472!2d19.006826600000004!3d47.4190416!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4741e7b550191ecb%3A0xc48ed42cf9f197e6!2sCr%C3%A9me&#39;s%20dessert!5e0!3m2!1shu!2shu!4v1716018329100!5m2!1shu!2shu"
-            width="100%" height="450" style="border: 0" allowfullscreen="" loading="lazy"
+            title="A Créme’s Dessert helye a térképen" width="100%" height="450" style="border: 0" allowfullscreen="" loading="lazy"
             referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
         <div class="col-md-4">
@@ -566,7 +560,7 @@
               <strong>Telefon:</strong>
               <a href="tel:+36302580495">06-30/258 0495</a>
             </p>
-            <p><strong>Email:</strong> cremesdessert@gmail.com</p>
+            <p><strong>Email:</strong> <a href="mailto:cremesdessert@gmail.com">cremesdessert@gmail.com</a></p>
             <div id="opening-hours-wrapper">
               <p><strong>Nyitvatartás:</strong></p>
               <ul id="opening-hours-list"></ul>
@@ -620,24 +614,13 @@
 
   <footer class="site-footer">
     <div class="container">
-      <div class="row align-items-start text-center text-md-left">
-        <div class="col-md-5 mb-4 mb-md-0">
-          <p class="footer-brand">Créme's Dessert</p>
-          <p>Kézműves desszertműhely Budapesten — finom ízek, szeretettel készítve.</p>
-        </div>
-        <div class="col-md-4 mb-4 mb-md-0 footer-links">
-          <p><strong>Elérhetőség</strong></p>
-          <p>Budapest, Klauzál Gábor u. 41, 1223</p>
-          <p><a href="tel:+36302580495">06-30/258 0495</a></p>
-          <p><a href="mailto:cremesdessert@gmail.com">cremesdessert@gmail.com</a></p>
-        </div>
-        <div class="col-md-3 footer-social text-center text-md-right">
-          <p><strong>Kövessen minket</strong></p>
-          <a href="https://www.facebook.com/profile.php?id=61561087531875" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-          <a href="https://www.instagram.com/cremes.dessert/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-        </div>
+      <div class="footer-topline"><span>Kézműves örömök, minden alkalomra.</span><a href="#landing">Vissza az elejére <span aria-hidden="true">↑</span></a></div>
+      <div class="footer-grid">
+        <div class="footer-story"><a class="footer-brand" href="#landing">Créme’s Dessert</a><p>Magyar ízek, francia elegancia.<br />Szenvedéllyel készítve, Budapesten.</p><span class="footer-star" aria-hidden="true">✦</span></div>
+        <div class="footer-links"><h2>Fedezze fel</h2><a href="#kinalatunk">Kínálatunk</a><a href="/rendeles">Tortarendelés</a><a href="#events">Rendezvények</a><a href="#gift-card">Ajándékutalvány</a></div>
+        <div class="footer-links"><h2>Látogasson el hozzánk</h2><p>1223 Budapest,<br />Klauzál Gábor utca 41.</p><a href="tel:+36302580495">+36 30 258 0495</a><a href="mailto:cremesdessert@gmail.com">cremesdessert@gmail.com</a><div class="footer-social"><a href="https://www.facebook.com/profile.php?id=61561087531875" target="_blank" rel="noopener noreferrer">Facebook ↗</a><a href="https://www.instagram.com/cremes.dessert/" target="_blank" rel="noopener noreferrer">Instagram ↗</a></div></div>
       </div>
-      <p class="footer-copy text-center mb-0">&copy; Créme's Dessert. Minden jog fenntartva.</p>
+      <p class="footer-copy">&copy; Créme’s Dessert. Minden jog fenntartva.</p>
     </div>
   </footer>
 
@@ -649,9 +632,12 @@
   emailjs.init('ev0f5DxorWd5oCGPL');  
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@glidejs/glide/dist/glide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
+<script src="/js/supabase-config.js"></script>
 
 
   <script src="script.js"></script>
+  <script src="js/landing.js"></script>
 </body>
 
 </html>

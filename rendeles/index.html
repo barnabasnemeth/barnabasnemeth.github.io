@@ -28,6 +28,9 @@
         // If you want to send with EmailJS, keep this init and fill your template below.
         emailjs.init('ev0f5DxorWd5oCGPL');
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
+    <script src="/js/supabase-config.js"></script>
+    <script src="/js/order-page.js"></script>
 
     <style>
         :root {
@@ -178,6 +181,33 @@
 
         .form-text.muted {
             color: #7b5b3b;
+        }
+
+        .guest-notice {
+            background: linear-gradient(180deg, #fffaf3 0%, #faeed1 100%);
+            border: 1px solid #e4c99a;
+            border-left: 5px solid #c4843a;
+            border-radius: 14px;
+            padding: 1rem 1.15rem 1.05rem 1.15rem;
+            box-shadow: 0 8px 20px rgba(153, 88, 42, 0.08);
+            color: var(--ink);
+        }
+
+        .guest-notice-title {
+            margin: 0 0 .55rem;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: .2px;
+            color: #99582A;
+        }
+
+        .guest-notice-list {
+            margin: 0;
+            padding-left: 1.15rem;
+        }
+
+        .guest-notice-list li + li {
+            margin-top: .55rem;
         }
 
         @media (max-width: 576px) {
@@ -628,6 +658,18 @@
             <p class="mb-0">Töltse ki az alábbi mezőket. A <span class="req">*</span>-gal jelölt mezők kötelezők.</p>
         </header>
 
+        <div class="row justify-content-center mb-4">
+            <div class="col-12 col-xl-10">
+                <aside class="guest-notice" role="note" aria-labelledby="guestNoticeTitle">
+                    <p id="guestNoticeTitle" class="guest-notice-title">Vendégtájékoztató</p>
+                    <ul class="guest-notice-list">
+                        <li>Műhelyünkben a keresztszennyeződés lehetőségét teljes mértékben kizárni nem tudjuk, ezért kérjük, hogy allergia vagy ételintolerancia esetén rendelés előtt ezt mindenképpen vegyék figyelembe.</li>
+                        <li>5 napon belüli átvételi időpont esetén a rendelés rövid határidősnek minősül. Ennek részleteiről a rendelés visszaigazolásakor egyeztetünk.</li>
+                    </ul>
+                </aside>
+            </div>
+        </div>
+
         <div id="alertBox" class="alert d-none" role="alert"></div>
 
         <div class="row justify-content-center">
@@ -703,8 +745,8 @@
                                     </div>
                                     <input type="date" class="form-control" id="atvetel_napja" required />
                                 </div>
-<small class="form-text muted">Minden torta frissen és gondosan készül, ezért 48 órán
-belül nem tudunk tortát átadni. Emellett hétfőre–keddre torta nem rendelhető,
+<small id="pickupHelpText" class="form-text muted">Minden torta frissen és gondosan készül, ezért 48 órán
+belül nem tudunk tortát átadni. Emellett hétfőre torta nem rendelhető,
 szezonális termékeink viszont továbbra is elérhetők.</small>
 
 
@@ -745,7 +787,7 @@ szezonális termékeink viszont továbbra is elérhetők.</small>
                         </p>
 
                         <div id="productsGrid" class="row">
-                            <!-- JS tölti fel a tortákat kártyákként a Google Sheet alapján -->
+                            <!-- JS tölti fel a tortákat kártyákként -->
                         </div>
 
 
@@ -942,7 +984,7 @@ szezonális termékeink viszont továbbra is elérhetők.</small>
 
     <script>
         // Állítsd be a GAS webapp URL-t:
-        const SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwAy-7KOqk9MjwFfQtVGPyuuAPFDDAfjJpV5_L9cxEqFtuqj4xvgZY-XLUPQYsEEHw/exec';
+        // Orders are saved with the submit_order database function.
 
         function buildAfasAdatokJSON() {
             const need = document.getElementById('afas_szamla')?.checked;
@@ -1007,27 +1049,38 @@ szezonális termékeink viszont továbbra is elérhetők.</small>
 
 
         async function sendOrderToSheet(payload) {
-            // Send as x-www-form-urlencoded to avoid CORS preflight
-            const body = new URLSearchParams(payload);
-
-            const res = await fetch(SHEET_WEBAPP_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-                body
-            });
-
-            const text = await res.text(); // <-- read TEXT, not JSON
-            if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + text);
-
-            // Expect a simple semicolon-separated OK line from GAS, e.g. "OK;sorszam=123"
-            if (!/^OK\b/i.test(text.trim())) {
-                // Bubble up whatever the script sent (can be your own error message)
-                throw new Error(text.trim());
+            let invoice = {};
+            try {
+                invoice = payload.afas_szamla_adatok ? JSON.parse(payload.afas_szamla_adatok) : {};
+            } catch (e) {
+                invoice = {};
             }
 
-            // Optionally parse fields, e.g. sorszam:
-            // const parts = Object.fromEntries(text.split(';').map(p => p.split('=')));
-            return text;
+            const body = {
+                customer_name: payload.nev,
+                email: payload.email,
+                phone: payload['telefonszám'],
+                pickup_date: payload.atvetel_napja,
+                pickup_slot: payload.atvetel_intervallum,
+                note: payload.megjegyzes || '',
+                items: orderItems.map(item => ({
+                    product_id: item.productId,
+                    slices: item.szeletek > 0 ? item.szeletek : null,
+                    quantity: item.qty
+                })),
+                candle_requested: payload.szamgyertya === 'igen',
+                candle_text: (document.getElementById('szamgyertya_szam')?.value || '').replace(/\D/g, ''),
+                firework_requested: payload.tuzijatek === 'igen',
+                box_requested: payload.tortadoboz === 'igen',
+                haccp_requested: payload.haccp === 'igen',
+                invoice_requested: payload.afas_szamla === 'igen',
+                invoice_company: invoice.cegnev || '',
+                invoice_address: invoice.cim || '',
+                invoice_tax_id: invoice.adoszam || ''
+            };
+
+            const result = await cremesSubmitOrder(body);
+            return 'OK;sorszam=' + result.order_number;
         }
 
         function buildEmailTemplateParams(p) {
@@ -1136,7 +1189,7 @@ szezonális termékeink viszont továbbra is elérhetők.</small>
             btn.innerHTML = 'Küldés…';
 
             try {
-                // 1) Mentsük a Google Sheetbe
+                // 1) Mentsük az adatbázisba
                 await sendOrderToSheet(payload);
 
                 // 2) (opcionális) EmailJS értesítés neked / adminnak
@@ -1182,16 +1235,8 @@ szezonális termékeink viszont továbbra is elérhetők.</small>
 
 
     <script>
-        // ---- CONFIG ----
-        const pricingSheetUrl =
-            'https://docs.google.com/spreadsheets/d/1QZOUq7eYXNSwd3CkgJmQMCGrDCxqQ7FO2RmozPnQWkM/gviz/tq?sheet=tortak&tqx=out:json';
-
-        // ---- POPULATE GRID FROM SHEET ----
-        const tortakUrl =
-            'https://docs.google.com/spreadsheets/d/1QZOUq7eYXNSwd3CkgJmQMCGrDCxqQ7FO2RmozPnQWkM/gviz/tq?sheet=tortak&tqx=out:json';
-
-        // placeholder kép, ha a sheetben nincs img URL
-        const PLACEHOLDER_IMG = 'https://cremesdessert.com/images/logo-white.png';
+        // placeholder kép, ha a terméknek nincs kép URL-je
+        let PLACEHOLDER_IMG = 'https://cremesdessert.com/images/logo-white.png';
 
 
         // ide építünk egy katalógust: { [tortaNev]: { badge, prices: {8:13000,12:18000,16:23500}, singlePrice, imageUrl } }
@@ -1204,6 +1249,14 @@ szezonális termékeink viszont továbbra is elérhetők.</small>
 
         // ---- segédek ----
         const ft = n => (typeof n === 'number' && !isNaN(n)) ? new Intl.NumberFormat('hu-HU').format(n) + ' Ft' : '';
+
+        function escapeHtml(str) {
+            return String(str == null ? '' : str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
 
         function getExtrasCountForCartBadge() {
     let count = 0;
@@ -1288,30 +1341,29 @@ function updateFloatingCart() {
             if (!grid) return;
 
             try {
-                const res = await fetch(tortakUrl);
-                const text = await res.text();
-                const data = JSON.parse(text.substring(47, text.length - 2));
-                const rows = data?.table?.rows || [];
+                const catalog = await cremesEnsureOrderData();
+                if (catalog.settings && catalog.settings.placeholder_image_url) {
+                    PLACEHOLDER_IMG = catalog.settings.placeholder_image_url;
+                }
 
-                rows.slice(1).forEach(row => {
-                    const name = row.c?.[0]?.v?.toString().trim();         // A: tortanév
-                    const badge = row.c?.[1]?.v?.toString().trim() || '';  // B: Mentességek
-                    const priceCell = row.c?.[2]?.v?.toString().trim() || ''; // C: ár
-
-                    const imgUrl = row.c?.[4]?.v?.toString().trim() || ''; // E: img
+                (catalog.products || []).forEach(product => {
+                    const name = String(product.name || '').trim();
+                    const badge = String(product.dietaryTags || '').trim();
+                    const imgUrl = String(product.imageUrl || '').trim();
+                    const productId = product.id;
 
                     if (!name) return;
 
-                    const pricesTriple = parsePriceTriple(priceCell);
-                    const singleNum = parseFtLikeToNumber(priceCell);
+                    const pricesTriple = product.prices || {};
+                    const singleNum = product.unitPrice;
                     const hasTriple = Object.keys(pricesTriple).length > 0;
 
-                    // katalógus feltöltése – bővítve imageUrl-lel
                     TortaCatalog[name] = {
+                        productId,
                         badge,
                         prices: hasTriple ? pricesTriple : {},
-                        singlePrice: !hasTriple && !isNaN(singleNum) ? singleNum : null,
-                        rawPriceText: priceCell,
+                        singlePrice: !hasTriple && singleNum != null && !isNaN(Number(singleNum)) ? Number(singleNum) : null,
+                        rawPriceText: '',
                         imageUrl: imgUrl || PLACEHOLDER_IMG
                     };
 
@@ -1347,14 +1399,14 @@ function updateFloatingCart() {
                     }
 
                     col.innerHTML = `
-                <div class="card product-card h-100" data-torta-key="${name}">
-<img src="${imgUrl || PLACEHOLDER_IMG}"
-     alt="${name}"
+                <div class="card product-card h-100" data-torta-key="${escapeHtml(name)}">
+<img src="${escapeHtml(imgUrl || PLACEHOLDER_IMG)}"
+     alt="${escapeHtml(name)}"
      class="${imgUrl ? '' : 'placeholder'}">
                     <div class="product-card-body">
                         <div>
-                            <div class="product-name">${name}</div>
-                            ${badge ? `<div class="product-badge">Mentességek: ${badge}</div>` : ''}
+                            <div class="product-name">${escapeHtml(name)}</div>
+                            ${badge ? `<div class="product-badge">Mentességek: ${escapeHtml(badge)}</div>` : ''}
                         </div>
 
                         <div class="product-controls">
@@ -1405,7 +1457,7 @@ function updateFloatingCart() {
                         const szeletek = parseInt(sizeSelect.value, 10) || 0;
                         const qty = Math.max(1, parseInt(qtyInput.value, 10) || 1);
 
-                        addItemToOrder(tortaKey, tortaNev, szeletek, qty);
+                        addItemToOrder(tortaKey, tortaNev, szeletek, qty, productId);
                     });
 
                     grid.appendChild(col);
@@ -1553,7 +1605,7 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
         const SINGLE_PRICE_HELP =
             'Ez a tétel nem szeletekben rendelhető, az ár egy darabra értendő.';
 
-        function addItemToOrder(tortaKey, tortaNev, szeletek, qty) {
+        function addItemToOrder(tortaKey, tortaNev, szeletek, qty, productId) {
             const cat = TortaCatalog[tortaKey];
             let priceInfo;
 
@@ -1568,6 +1620,7 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
 
             orderItems.push({
                 id: nextItemId++,
+                productId: productId || (TortaCatalog[tortaKey] && TortaCatalog[tortaKey].productId) || null,
                 tortaKey,
                 tortaNev,
                 szeletek,
@@ -1824,7 +1877,7 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
             const nowLocal = new Date();
             const pad = n => String(n).padStart(2, '0');
             const nowStr = nowLocal.getFullYear() + '-' + pad(nowLocal.getMonth() + 1) + '-' + pad(nowLocal.getDate()) + 'T' + pad(nowLocal.getHours()) + ':' + pad(nowLocal.getMinutes());
-            document.getElementById('atvetel_napja').setAttribute('min', todayISO);
+            document.getElementById('atvetel_napja').setAttribute('min', window.cremesMinPickupDate ? cremesMinPickupDate() : todayISO);
             document.getElementById('rendeles_ideje').value = nowStr;
         }
 
@@ -1926,8 +1979,9 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
 
 
         async function fetchPricingData() {
+            return;
             try {
-                const response = await fetch(pricingSheetUrl);
+                const response = await fetch('');
                 const text = await response.text();
                 const data = JSON.parse(text.substring(47, text.length - 2));
                 const pricingTableBody = document.getElementById('pricing-table-body');
@@ -2123,7 +2177,10 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
 
             // 5) RÖVID HATÁRIDŐ jelzés
             const rush = isRushPickup();
-            const rushFelar = ''; // később ide jöhet konkrét összeg
+            const rushCfg = (window.CREMES_ORDER && window.CREMES_ORDER.settings) || {};
+            const rushFelar = (rush && rushCfg.charge_rush_surcharge && rushCfg.rush_surcharge_huf != null)
+                ? Number(rushCfg.rush_surcharge_huf)
+                : '';
 
             // 6) RÉSZÖSSZEG (csak ismert tételek)
             const reszosszegIsmertek = toInt(
@@ -2172,22 +2229,18 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
 
             function pad(n) { return String(n).padStart(2, '0'); }
 
-            function updateMinDate() {
-                const baseDate = new Date(); // rendelés ideje (ha readonly, ez ok)
-                const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 2);
-                const yyyy = d.getFullYear();
-                const mm = pad(d.getMonth() + 1);
-                const dd = pad(d.getDate());
-                atvetelInput.min = `${yyyy}-${mm}-${dd}`;
+            async function updateMinDate() {
+                try {
+                    await cremesEnsureOrderData();
+                } catch (e) {
+                    console.error(e);
+                }
+                atvetelInput.min = cremesMinPickupDate();
             }
 
             function checkUrgency() {
                 if (!atvetelInput.value) return;
-                const today = new Date();
-                const pickup = new Date(atvetelInput.value);
-                const diffDays = Math.ceil((pickup - today) / (1000 * 60 * 60 * 24));
-
-                if (diffDays < 5) {
+                if (typeof cremesIsRush === 'function' ? cremesIsRush(atvetelInput.value) : false) {
                     warning.classList.remove('d-none');
                 } else {
                     warning.classList.add('d-none');
@@ -2205,11 +2258,7 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
 
 
     <script>
-        // --- Kiegészítő árak (A2: számgyertya egységár, C2: tűzijáték ár) ---
-        const kiegeszitoArakUrl =
-            'https://docs.google.com/spreadsheets/d/1QZOUq7eYXNSwd3CkgJmQMCGrDCxqQ7FO2RmozPnQWkM/gviz/tq?sheet=kiegeszito_arak&tqx=out:json';
-
-        // --- Kiegészítő árak (A2: számgyertya, B2: tortadoboz, C2: tűzijáték) ---
+        // --- Kiegészítő árak az order_settings táblából ---
         let szamgyertyaEgysegAr = 0;
         let tortadobozAr = 0;      // <-- ÚJ
         let tuzijatekAr = 0;
@@ -2223,24 +2272,18 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
 
         async function fetchKiegeszitoArak() {
             try {
-                const res = await fetch(kiegeszitoArakUrl);
-                const text = await res.text();
-                const data = JSON.parse(text.substring(47, text.length - 2));
-                const rows = data.table?.rows || [];
-                const r0 = rows[0] || {}; // A2/B2/C2
+                const data = await cremesEnsureOrderData();
+                const cfg = data.settings || {};
+                szamgyertyaEgysegAr = Number(cfg.candle_unit_price_huf) || 0;
+                tortadobozAr = Number(cfg.box_price_huf) || 0;
+                tuzijatekAr = Number(cfg.firework_price_huf) || 0;
 
-                // A2 -> számgyertya egységár
-                szamgyertyaEgysegAr = toNumberLikeFt(r0.c?.[0]?.v);
                 const egys = document.getElementById('szamgyertya_egysegar');
                 if (egys) egys.textContent = szamgyertyaEgysegAr ? `${szamgyertyaEgysegAr} Ft / db` : 'N/A';
 
-                // B2 -> tortadoboz ár  ----------------------  ÚJ
-                tortadobozAr = toNumberLikeFt(r0.c?.[1]?.v);
                 const doboz = document.getElementById('tortadoboz_ar');
                 if (doboz) doboz.textContent = tortadobozAr ? `(${new Intl.NumberFormat('hu-HU').format(tortadobozAr)} Ft)` : '';
 
-                // C2 -> tűzijáték ár
-                tuzijatekAr = toNumberLikeFt(r0.c?.[2]?.v);
                 const tuzi = document.getElementById('tuzijatek_ar');
                 if (tuzi) tuzi.textContent = tuzijatekAr ? `(${new Intl.NumberFormat('hu-HU').format(tuzijatekAr)} Ft)` : '';
             } catch (e) {
@@ -2368,17 +2411,8 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
         // Szombat: 10–12, 12–14, 14–16, 16–18
         // Vasárnap: 10–12, 12–14, 14–16
         function getSlotsForDate(dateStr) {
-            if (!dateStr) return [];
-            const d = new Date(dateStr + 'T00:00:00'); // helyi idő
-            const day = d.getDay(); // 0=vasárnap, 6=szombat
-
-            if (day === 6) { // szombat
-                return ['10:00–12:00', '12:00–14:00', '14:00–16:00', '16:00–18:00'];
-            } else if (day === 0) { // vasárnap
-                return ['10:00–12:00', '12:00–14:00', '14:00–16:00'];
-            } else { // hétköznap
-                return ['12:00–14:00', '14:00–16:00', '16:00–18:00'];
-            }
+            if (!dateStr || typeof cremesSlotsForDate !== 'function') return [];
+            return cremesSlotsForDate(dateStr);
         }
 
         // Fő: idősávok frissítése a dátum alapján
@@ -2531,12 +2565,12 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
 
     <script>
 
-        // Segéd: hétfő vagy kedd-e az átvétel napja
-function isPickupMondayOrTuesday(dateStr) {
+        // Segéd: hétfő-e az átvétel napja (kedd átvétel engedett)
+function isPickupMonday(dateStr) {
     if (!dateStr) return false;
     const d = new Date(dateStr + 'T00:00:00');
-    const day = d.getDay(); // 0 = vasárnap, 1 = hétfő, 2 = kedd
-    return day === 1 || day === 2;
+    const day = d.getDay(); // 0 = vasárnap, 1 = hétfő
+    return day === 1;
 }
 
 function isBetweenHolidayTortaBan(dateStr) {
@@ -2592,11 +2626,8 @@ function hasCakeItemInCart() {
         // rövid határidő (5 napon belül) – csak jelzés, ár nélkül
         function isRushPickup() {
             const val = document.getElementById('atvetel_napja').value;
-            if (!val) return false;
-            const pickup = new Date(val);
-            const today = new Date();
-            const diffDays = Math.ceil((pickup - today) / (1000 * 60 * 60 * 24));
-            return diffDays < 5;
+            if (!val || typeof cremesIsRush !== 'function') return false;
+            return cremesIsRush(val);
         }
 
         // összeg gyűjtése és modal kirajzolása
@@ -2636,35 +2667,26 @@ if (missingFields.length > 0) {
     `;
 }
 
-// ÚJ: hétfő / kedd + torta tiltás + ünnepi időszak
-let mondayTuesdayWarningHTML = '';
+// Hétfői torta tiltás + ünnepi időszak (kedd átvétel engedett)
+let mondayWarningHTML = '';
 let holidayWarningHTML = '';
 
-const pickupIsMonTue = isPickupMondayOrTuesday(payload.atvetel_napja);
 const hasCake = hasCakeItemInCart();
-const isBlockedHolidayRange = isBetweenHolidayTortaBan(payload.atvetel_napja);
+const pickupBlockMessage = (typeof cremesPickupBlock === 'function')
+    ? cremesPickupBlock(payload.atvetel_napja, hasCake)
+    : '';
 
-if (pickupIsMonTue && hasCake) {
-    mondayTuesdayWarningHTML = `
+if (pickupBlockMessage) {
+    mondayWarningHTML = `
         <div class="alert alert-danger py-2 mb-3" style="font-size: .9rem;">
-            Hétfőn és kedden a cukrászda zárva tart, ezért torta nem választható ezekre a napokra.<br>
-            Ünnepi szezonális termékeink azonban hétfőre és keddre is rendelhetők.
-        </div>
-    `;
-}
-
-if (isBlockedHolidayRange && hasCake) {
-    holidayWarningHTML = `
-        <div class="alert alert-danger py-2 mb-3" style="font-size: .9rem;">
-            Tortát legkésőbb 2025. december 21-ig tudunk átadni, majd legközelebb 2026. január 7-től.<br>
-            Az ünnepi időszakban csak szezonális termékeink rendelhetők.
+            ${pickupBlockMessage.replace(/</g, '&lt;')}
         </div>
     `;
 }
 
 customerBox.innerHTML = `
     ${warningHTML}
-    ${mondayTuesdayWarningHTML}
+    ${mondayWarningHTML}
     ${holidayWarningHTML}
     <div><strong>Név:</strong> ${payload.nev || '<span class="text-danger">—</span>'}</div>
     <div><strong>Email:</strong> ${payload.email || '<span class="text-danger">—</span>'}</div>
@@ -2795,8 +2817,9 @@ customerBox.innerHTML = `
             }
 
 
+            const rushCfgText = (window.CREMES_ORDER && window.CREMES_ORDER.settings) || {};
             const rushMsg = isRushPickup()
-                ? 'A rövid határidős felár mértéke egyeztetés tárgya.'
+                ? (rushCfgText.rush_summary_text || 'A rövid határidős felár mértéke egyeztetés tárgya.')
                 : '';
 
             const noteLines = [];
@@ -2821,7 +2844,7 @@ customerBox.innerHTML = `
 // A "Rendelés elküldése" gomb engedélyezése / tiltása
 const placeBtn = document.getElementById('btnPlaceOrder');
 if (placeBtn) {
-if ((pickupIsMonTue && hasCake) || (isBlockedHolidayRange && hasCake)) {
+if (pickupBlockMessage) {
     placeBtn.disabled = true;
     placeBtn.title = 'A választott napon torta nem adható át.';
 } else {
