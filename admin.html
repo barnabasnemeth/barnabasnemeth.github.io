@@ -186,6 +186,15 @@
                             <div id="productList" class="card-grid" hidden></div>
                         </section>
 
+                        <section class="catalog-block" aria-labelledby="seasonalHeading">
+                            <div class="section-head">
+                                <div><h2 id="seasonalHeading">Szezonális termékek</h2><p id="seasonalSubtitle" class="page-sub">Betöltés…</p></div>
+                                <button id="seasonalAdd" class="btn btn-primary" type="button">+ Új szezonális termék</button>
+                            </div>
+                            <div id="seasonalState"></div>
+                            <div id="seasonalList" class="card-grid" hidden></div>
+                        </section>
+
                         <section class="catalog-block" aria-labelledby="pogacsaHeading">
                             <div class="section-head">
                                 <div>
@@ -638,6 +647,29 @@
                     </section>
                 </form>
 
+                <form id="seasonalForm" data-drawer-panel="seasonal" hidden autocomplete="off">
+                    <input type="hidden" id="seasonalId">
+                    <input type="hidden" id="seasonalSort" value="0">
+                    <section class="block">
+                        <h3>Alapadatok</h3>
+                        <div class="field"><label for="seasonalName">Név</label><input id="seasonalName" class="input" maxlength="160" required></div>
+                        <div class="field"><label for="seasonalPrice">Darab egységár</label><div class="input-affix"><input id="seasonalPrice" class="input" type="number" min="0" step="1" max="10000000" required><span>Ft / db</span></div></div>
+                        <div class="field"><label for="seasonalImage">Kép URL</label><input id="seasonalImage" class="input" maxlength="1000" placeholder="https://… vagy /images/…"><p class="hint">Kép nélkül a Créme’s logó jelenik meg.</p></div>
+                        <div class="preview-box"><img id="seasonalPreview" alt="Créme’s logó"></div>
+                        <div class="field"><label for="seasonalTags">Mentességek</label><input id="seasonalTags" class="input" maxlength="200" placeholder="VEGAN, CM, GM, LM"><p class="hint">Vesszővel elválasztva, ugyanúgy, mint a tortáknál.</p></div>
+                    </section>
+                    <section class="block">
+                        <h3>Rendelés és átvétel</h3>
+                        <div class="field"><label for="seasonalDeadline">Rendelhető eddig</label><input id="seasonalDeadline" class="input" type="datetime-local" required><p class="hint">Magyar idő szerint. Ekkor a rendelés lezárul; a főoldalon továbbra is látható marad.</p></div>
+                        <div class="form-grid">
+                            <div class="field"><label for="seasonalFrom">Átvehető ettől</label><input id="seasonalFrom" class="input" type="date" required></div>
+                            <div class="field"><label for="seasonalUntil">Átvehető eddig</label><input id="seasonalUntil" class="input" type="date" required></div>
+                        </div>
+                        <p class="hint">Mindkét napot beleértve, az átvételi idősávok és a teljes zárások figyelembevételével.</p>
+                    </section>
+                    <label class="switch"><input id="seasonalActive" type="checkbox" checked><span class="switch-track" aria-hidden="true"></span><span class="switch-text"></span><span class="switch-label">Aktív</span></label>
+                </form>
+
                 <form id="pogacsaForm" data-drawer-panel="pogacsa" hidden autocomplete="off">
                     <input type="hidden" id="pogacsaId">
                     <input type="hidden" id="pogacsaSort" value="0">
@@ -787,7 +819,9 @@
     <div id="toastRegion" class="toast-region" aria-live="polite" aria-relevant="additions"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
-    <script src="/js/supabase-config.js"></script>
+    <script src="/js/local-preview.js"></script>
+<script src="/js/supabase-config.js"></script>
+    <script src="/js/seasonal.js"></script>
     <script src="/js/admin.js"></script>
 </body>
 </html>

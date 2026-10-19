@@ -29,7 +29,9 @@
         emailjs.init('ev0f5DxorWd5oCGPL');
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
-    <script src="/js/supabase-config.js"></script>
+    <script src="/js/local-preview.js"></script>
+<script src="/js/supabase-config.js"></script>
+    <script src="/js/seasonal.js"></script>
     <script src="/js/order-page.js"></script>
 
     <style>
@@ -748,6 +750,7 @@
 <small id="pickupHelpText" class="form-text muted">Minden torta frissen és gondosan készül, ezért 48 órán
 belül nem tudunk tortát átadni. Emellett hétfőre torta nem rendelhető,
 szezonális termékeink viszont továbbra is elérhetők.</small>
+                                <p id="seasonalPickupMessage" class="small mt-2" role="alert" hidden></p>
 
 
 
@@ -791,6 +794,12 @@ szezonális termékeink viszont továbbra is elérhetők.</small>
                         </div>
 
 
+
+                        <section id="seasonalOrderSection" aria-labelledby="seasonalOrderTitle" hidden>
+                            <h5 id="seasonalOrderTitle" class="mt-4 mb-2">Szezonális termékek</h5>
+                            <p class="small text-muted">Darabra rendelhető finomságok, saját rendelési határidővel és átvételi időszakkal. Kizárólag szezonális termékek rendelésekor nincs kétnapos előrendelési korlát és rövid határidős felár.</p>
+                            <div id="seasonalProductsGrid" class="row"></div>
+                        </section>
 
                         <!-- KOSÁR MODAL -->
                         <div class="modal fade" id="cartModal" tabindex="-1" role="dialog"
@@ -1160,7 +1169,7 @@ szezonális termékeink viszont továbbra is elérhetők.</small>
                 return;
             }
 
-            if (!form.checkValidity()) {
+            if (!cremesValidateOrderForm()) {
                 form.classList.add('was-validated');
 
                 // opcionális: zárjuk a modált, hogy lássa a formot
@@ -1243,6 +1252,7 @@ szezonális termékeink viszont továbbra is elérhetők.</small>
         const TortaCatalog = {};
         // ide gyűjtjük a rendelés tételeit (több torta, mennyiséggel)
         let orderItems = [];
+        window.cremesCartItems = () => orderItems;
         let nextItemId = 1;
 
 
@@ -1347,9 +1357,12 @@ function updateFloatingCart() {
                 }
 
                 (catalog.products || []).forEach(product => {
+                    const seasonal = product.product_kind === 'seasonal';
+                    if (seasonal && !CremesSeasonal.isOrderable(product)) return;
+                    const targetGrid = seasonal ? document.getElementById('seasonalProductsGrid') : grid;
                     const name = String(product.name || '').trim();
                     const badge = String(product.dietaryTags || '').trim();
-                    const imgUrl = String(product.imageUrl || '').trim();
+                    const imgUrl = seasonal ? CremesSeasonal.imageUrl(product.imageUrl) : String(product.imageUrl || '').trim();
                     const productId = product.id;
 
                     if (!name) return;
@@ -1384,7 +1397,7 @@ function updateFloatingCart() {
         </option>`;
     });
 }
- else if (!isNaN(singleNum) && singleNum > 0) {
+ else if (singleNum != null && Number.isFinite(Number(singleNum)) && singleNum >= 0) {
                         // nem szeletes termék (bejgli, doboz stb.)
                         priceOptionsHtml = `
                     <option value="0">
@@ -1402,15 +1415,16 @@ function updateFloatingCart() {
                 <div class="card product-card h-100" data-torta-key="${escapeHtml(name)}">
 <img src="${escapeHtml(imgUrl || PLACEHOLDER_IMG)}"
      alt="${escapeHtml(name)}"
-     class="${imgUrl ? '' : 'placeholder'}">
+     class="${seasonal && imgUrl === CremesSeasonal.LOGO ? 'placeholder seasonal-logo' : (imgUrl ? '' : 'placeholder')}">
                     <div class="product-card-body">
                         <div>
                             <div class="product-name">${escapeHtml(name)}</div>
                             ${badge ? `<div class="product-badge">Mentességek: ${escapeHtml(badge)}</div>` : ''}
+                            ${seasonal ? `<p class="small text-muted mb-1">Rendelhető: ${escapeHtml(CremesSeasonal.deadlineLabel(product.order_until))}-ig</p><p class="small text-muted mb-1">Átvehető: ${escapeHtml(CremesSeasonal.dateLabel(product.pickup_from))} – ${escapeHtml(CremesSeasonal.dateLabel(product.pickup_until))}</p>` : ''}
                         </div>
 
                         <div class="product-controls">
-                            <label class="small mb-1 mb-sm-0 d-block">Válasszon méretet:</label>
+                            <label class="small mb-1 mb-sm-0 d-block">${seasonal ? 'Darab egységár:' : 'Válasszon méretet:'}</label>
                             <select class="form-control form-control-sm size-select">
                                 ${priceOptionsHtml}
                             </select>
@@ -1440,6 +1454,17 @@ function updateFloatingCart() {
                     const btnPlus = col.querySelector('.qty-plus');
                     const btnAdd = col.querySelector('.add-to-cart-btn');
                     const sizeSelect = col.querySelector('.size-select');
+                    if (seasonal) {
+                        CremesSeasonal.applyImageFallback(col.querySelector('img'));
+                        sizeSelect.setAttribute('aria-label', 'Darab egységár');
+                        col.querySelector('.qty-input').max = '50';
+                        const refreshAvailability = () => {
+                            col.hidden = !CremesSeasonal.isOrderable(product);
+                            btnAdd.disabled = col.hidden;
+                            document.getElementById('seasonalOrderSection').hidden = !Array.from(targetGrid.children).some(child => !child.hidden);
+                        };
+                        window.setInterval(refreshAvailability, 1000);
+                    }
 
                     btnMinus.addEventListener('click', () => {
                         const current = parseInt(qtyInput.value, 10) || 1;
@@ -1460,8 +1485,10 @@ function updateFloatingCart() {
                         addItemToOrder(tortaKey, tortaNev, szeletek, qty, productId);
                     });
 
-                    grid.appendChild(col);
+                    targetGrid.appendChild(col);
+                    if (seasonal) document.getElementById('seasonalOrderSection').hidden = false;
                 });
+                window.setInterval(() => cremesRefreshPickupConstraints(), 1000);
             } catch (e) {
                 console.error('Torták betöltési hiba:', e);
                 if (grid) {
@@ -1606,6 +1633,12 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
             'Ez a tétel nem szeletekben rendelhető, az ár egy darabra értendő.';
 
         function addItemToOrder(tortaKey, tortaNev, szeletek, qty, productId) {
+            const product = window.CREMES_ORDER?.products.find(p => p.id === productId);
+            if (product?.product_kind === 'seasonal' && !CremesSeasonal.isOrderable(product)) {
+                showAlert('warning', 'Ennek a terméknek a rendelése lezárult.');
+                return;
+            }
+            if (qty > 50) { showAlert('warning', 'Egy tételből legfeljebb 50 darab rendelhető.'); return; }
             const cat = TortaCatalog[tortaKey];
             let priceInfo;
 
@@ -1695,6 +1728,7 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
 
 
         function renderOrderItemsTable() {
+    if (typeof cremesRefreshPickupConstraints === 'function') cremesRefreshPickupConstraints();
     const box = document.getElementById('orderItemsBox');
     const emptyMsg = document.getElementById('emptyCartMessage');
     const tbody = document.getElementById('orderItemsTableBody');
@@ -1732,7 +1766,7 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td>${item.tortaNev}</td>
+            <td>${escapeHtml(item.tortaNev)}</td>
             <td class="text-nowrap d-none d-sm-table-cell">
                 ${item.szeletek ? item.szeletek + ' szelet' : '—'}
             </td>
@@ -1926,7 +1960,7 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
 
             // szöveg + progress bar
             box.innerHTML = `
-        <div>${msg}</div>
+        <div>${escapeHtml(msg)}</div>
         <div class="alert-progress">
             <span class="alert-progress-bar"></span>
         </div>
@@ -2404,6 +2438,9 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
     <script>
         // Segéd: opciók újratöltése
         function fillTimeOptions(selectEl, slots) {
+            const previous = selectEl.value;
+            const current = Array.from(selectEl.options).slice(1).map(option => option.value);
+            if (current.length === slots.length && current.every((value, index) => value === slots[index])) return;
             selectEl.innerHTML = '';
             const ph = document.createElement('option');
             ph.value = '';
@@ -2418,6 +2455,7 @@ if ([8, 12, 16, 24].includes(slices) && prices[slices]) {
                 opt.textContent = range;
                 selectEl.appendChild(opt);
             });
+            if (slots.includes(previous)) selectEl.value = previous;
         }
 
         // Nap alapján visszaadja a 2 órás idősávokat
@@ -2659,6 +2697,8 @@ function hasCakeItemInCart() {
                 return;
             }
 
+            if (!cremesValidateOrderForm()) return;
+
             const payload = collectPayload();
             const linesTbody = document.getElementById('summaryLines');
             const customerBox = document.getElementById('summaryCustomer');
@@ -2710,11 +2750,11 @@ customerBox.innerHTML = `
     ${warningHTML}
     ${mondayWarningHTML}
     ${holidayWarningHTML}
-    <div><strong>Név:</strong> ${payload.nev || '<span class="text-danger">—</span>'}</div>
-    <div><strong>Email:</strong> ${payload.email || '<span class="text-danger">—</span>'}</div>
-    <div><strong>Telefon:</strong> ${payload.telefonszám || '<span class="text-danger">—</span>'}</div>
-    <div><strong>Átvétel:</strong> ${payload.atvetel_napja || '<span class="text-danger">—</span>'}
-        ${payload.atvetel_intervallum ? ' (' + payload.atvetel_intervallum + ')' : ''}
+    <div><strong>Név:</strong> ${escapeHtml(payload.nev) || '<span class="text-danger">—</span>'}</div>
+    <div><strong>Email:</strong> ${escapeHtml(payload.email) || '<span class="text-danger">—</span>'}</div>
+    <div><strong>Telefon:</strong> ${escapeHtml(payload.telefonszám) || '<span class="text-danger">—</span>'}</div>
+    <div><strong>Átvétel:</strong> ${escapeHtml(payload.atvetel_napja) || '<span class="text-danger">—</span>'}
+        ${payload.atvetel_intervallum ? ' (' + escapeHtml(payload.atvetel_intervallum) + ')' : ''}
     </div>
 `;
 
@@ -2732,11 +2772,11 @@ customerBox.innerHTML = `
             const addLine = (name, qtyLabel, unitPrice, total, note, countToAdd = 0) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-        <td data-label="Tétel">${name}</td>
+        <td data-label="Tétel">${escapeHtml(name)}</td>
         <td class="text-nowrap" data-label="Menny.">${qtyLabel || '—'}</td>
         <td data-label="Egységár">${(typeof unitPrice === 'number' && !isNaN(unitPrice)) ? fmtFt(unitPrice) : '—'}</td>
         <td data-label="Összeg">${(typeof total === 'number' && !isNaN(total)) ? fmtFt(total) : '—'}</td>
-        <td class="d-none d-sm-table-cell" data-label="Megjegyzés">${note || ''}</td>
+        <td class="d-none d-sm-table-cell" data-label="Megjegyzés">${escapeHtml(note || '')}</td>
     `;
                 linesTbody.appendChild(tr);
 
@@ -2865,7 +2905,7 @@ customerBox.innerHTML = `
             }
 
             notesBox.innerHTML = noteLines.length
-                ? `<div class="mt-2"><strong>Megjegyzések:</strong><br>${noteLines.map(x => '• ' + x).join('<br>')}</div>`
+                ? `<div class="mt-2"><strong>Megjegyzések:</strong><br>${noteLines.map(x => '• ' + escapeHtml(x)).join('<br>')}</div>`
                 : '';
 
 // A "Rendelés elküldése" gomb engedélyezése / tiltása
@@ -2873,7 +2913,7 @@ const placeBtn = document.getElementById('btnPlaceOrder');
 if (placeBtn) {
 if (pickupBlockMessage) {
     placeBtn.disabled = true;
-    placeBtn.title = 'A választott napon torta nem adható át.';
+    placeBtn.title = pickupBlockMessage;
 } else {
     placeBtn.disabled = false;
     placeBtn.title = '';
@@ -2905,18 +2945,18 @@ $('#summaryModal').modal('show');
                     const qtyTxt = `${it.qty} db`;
 
                     orderLinesHtml = `
-                <li><strong>Torta:</strong> ${it.tortaNev}
+                <li><strong>Termék:</strong> ${escapeHtml(it.tortaNev)}
                     ${szeletTxt ? ' – ' + szeletTxt : ''}
                     – ${qtyTxt}
                 </li>
             `;
                 } else if (items.length > 1) {
                     orderLinesHtml = `
-                <li><strong>Torták:</strong></li>
+                <li><strong>Termékek:</strong></li>
                 ${items.map(it => {
                         const szeletTxt = it.szeletek ? `${it.szeletek} szelet` : '';
                         return `
-                        <li>• ${it.tortaNev}
+                        <li>• ${escapeHtml(it.tortaNev)}
                             ${szeletTxt ? ' – ' + szeletTxt : ''}
                             – ${it.qty} db
                         </li>
@@ -2940,16 +2980,16 @@ $('#summaryModal').modal('show');
 
             // HTML összeállítása
             summaryEl.innerHTML = `
-        <li><strong>Név:</strong> ${p.nev || '—'}</li>
-        <li><strong>Email:</strong> ${p.email || '—'}</li>
-        <li><strong>Telefon:</strong> ${p.telefonszám || '—'}</li>
-        <li><strong>Átvétel:</strong> ${p.atvetel_napja || '—'}${p.atvetel_intervallum ? ' (' + p.atvetel_intervallum + ')' : ''}</li>
+        <li><strong>Név:</strong> ${escapeHtml(p.nev) || '—'}</li>
+        <li><strong>Email:</strong> ${escapeHtml(p.email) || '—'}</li>
+        <li><strong>Telefon:</strong> ${escapeHtml(p.telefonszám) || '—'}</li>
+        <li><strong>Átvétel:</strong> ${escapeHtml(p.atvetel_napja) || '—'}${p.atvetel_intervallum ? ' (' + escapeHtml(p.atvetel_intervallum) + ')' : ''}</li>
 
         ${orderLinesHtml}
 
         ${extras.length ? `<li><strong>Kiegészítők:</strong> ${extras.join(', ')}</li>` : ''}
 
-        ${p.megjegyzes ? `<li><strong>Megjegyzés:</strong> ${p.megjegyzes}</li>` : ''}
+        ${p.megjegyzes ? `<li><strong>Megjegyzés:</strong> ${escapeHtml(p.megjegyzes)}</li>` : ''}
     `;
 
             $('#thankyouModal').modal('show');

@@ -21,6 +21,7 @@
     sortDir: 'desc',
     editingItems: [],
     products: [],
+    seasonal: [],
     pogacsa: [],
     hours: [],
     extras: [],
@@ -977,7 +978,7 @@
       $('productSubtitle').textContent = 'Betöltés…';
     }
     try {
-      const { data, error } = await client().from('products').select('*, product_prices(slices,price_huf)').order('sort_order');
+      const { data, error } = await client().from('products').select('*, product_prices(slices,price_huf)').eq('product_kind', 'cake').order('sort_order');
       if (error) throw error;
       state.products = data || [];
       renderProducts();
@@ -1114,6 +1115,97 @@
       formId: 'pogacsaForm',
       deletable: !!row
     });
+  }
+
+  async function loadSeasonal() {
+    try {
+      const { data, error } = await client().from('products').select('*').eq('product_kind', 'seasonal').order('sort_order');
+      if (error) throw error;
+      state.seasonal = data || [];
+      $('seasonalSubtitle').textContent = state.seasonal.length + ' szezonális termék';
+      $('seasonalState').replaceChildren();
+      $('seasonalList').hidden = !state.seasonal.length;
+      $('seasonalList').replaceChildren();
+      if (!state.seasonal.length) $('seasonalState').append(messageCard('Még nincs szezonális termék.', 'Az Új szezonális termék gombbal veheted fel.'));
+      state.seasonal.forEach((row, index) => {
+        const image = h('img', { src: CremesSeasonal.imageUrl(row.image_url), alt: row.name, loading: 'lazy' });
+        CremesSeasonal.applyImageFallback(image);
+        if (image.getAttribute('src') === CremesSeasonal.LOGO) image.classList.add('seasonal-logo');
+        $('seasonalList').append(h('article', { class: 'surface product-card' },
+          h('div', { class: 'product-photo' }, image),
+          h('div', { class: 'product-body' },
+            h('h2', { text: row.name }),
+            h('div', { class: 'tag-row' }, tagsOf(row.dietary_tags).map(tag => h('span', { class: 'tag', text: tag }))),
+            h('p', { text: money(row.seasonal_price_huf) + ' / db' }),
+            dotLabel(row.is_available, 'Aktív', 'Inaktív'),
+            h('p', { class: 'hint', text: 'Rendelhető: ' + CremesSeasonal.deadlineLabel(row.order_until) }),
+            h('p', { class: 'hint', text: 'Átvehető: ' + CremesSeasonal.dateLabel(row.pickup_from) + ' – ' + CremesSeasonal.dateLabel(row.pickup_until) }),
+            row.is_available && !CremesSeasonal.isOrderable(row) ? h('p', { class: 'hint', text: 'A rendelés lezárult' }) : null,
+            h('div', { class: 'card-foot' }, moveGroup(row.id, index, state.seasonal.length),
+              h('button', { class: 'btn btn-secondary', type: 'button', text: 'Szerkesztés', 'data-edit-seasonal': row.id }))
+          )));
+      });
+    } catch (error) {
+      $('seasonalSubtitle').textContent = 'Nem sikerült betölteni.';
+      $('seasonalState').replaceChildren(messageCard('Nem sikerült betölteni a szezonális termékeket.', 'Ellenőrizd az adatbázis frissítését, majd próbáld újra.', loadSeasonal));
+    }
+  }
+
+  function updateSeasonalPreview() {
+    const image = $('seasonalPreview');
+    image.src = CremesSeasonal.imageUrl($('seasonalImage').value);
+    image.style.objectFit = image.getAttribute('src') === CremesSeasonal.LOGO ? 'contain' : 'cover';
+  }
+
+  function openSeasonal(row) {
+    $('seasonalForm').reset();
+    $('seasonalId').value = row ? row.id : '';
+    $('seasonalSort').value = row ? row.sort_order : nextSort(state.seasonal);
+    $('seasonalName').value = row ? row.name : '';
+    $('seasonalPrice').value = row ? row.seasonal_price_huf : '';
+    $('seasonalImage').value = row ? row.image_url || '' : '';
+    $('seasonalTags').value = row ? row.dietary_tags || '' : '';
+    $('seasonalDeadline').value = row ? row.order_until.slice(0, 16) : '';
+    $('seasonalFrom').value = row ? row.pickup_from : '';
+    $('seasonalUntil').value = row ? row.pickup_until : '';
+    $('seasonalActive').checked = row ? row.is_available : true;
+    $('seasonalUntil').setCustomValidity('');
+    updateSeasonalPreview();
+    openDrawer({ title: row ? 'Szezonális termék szerkesztése' : 'Új szezonális termék', kicker: 'Szezonális termékek', panel: 'seasonal', formId: 'seasonalForm', deletable: !!row });
+  }
+
+  async function saveSeasonal() {
+    const payload = {
+      product_kind: 'seasonal', name: $('seasonalName').value.trim(),
+      seasonal_price_huf: Number($('seasonalPrice').value),
+      image_url: $('seasonalImage').value.trim() || null,
+      dietary_tags: $('seasonalTags').value.trim(),
+      order_until: $('seasonalDeadline').value,
+      pickup_from: $('seasonalFrom').value, pickup_until: $('seasonalUntil').value,
+      is_available: $('seasonalActive').checked, show_on_homepage: true,
+      sort_order: Number($('seasonalSort').value) || 0
+    };
+    if (payload.pickup_from > payload.pickup_until) {
+      $('seasonalUntil').setCustomValidity('A zárónap nem lehet korábbi a kezdőnapnál.');
+      $('seasonalUntil').reportValidity();
+      return;
+    }
+    const id = $('seasonalId').value;
+    const { error } = id ? await client().from('products').update(payload).eq('id', id).eq('product_kind', 'seasonal') : await client().from('products').insert(payload);
+    if (error) { toastError(error); return; }
+    closeDrawer();
+    toastOk('Szezonális termék mentve');
+    await loadSeasonal();
+  }
+
+  async function deleteSeasonal() {
+    const id = $('seasonalId').value;
+    if (!id || !await confirmAction('Biztosan törlöd ezt a szezonális terméket?', 'A korábbi rendelések tételei megmaradnak. A terméket inaktívvá is teheted.')) return;
+    const { error } = await client().from('products').delete().eq('id', id).eq('product_kind', 'seasonal');
+    if (error) { toastError(error); return; }
+    closeDrawer();
+    toastOk('Szezonális termék törölve');
+    await loadSeasonal();
   }
 
   async function loadPogacsa() {
@@ -1576,6 +1668,19 @@
   let updatePlaceholderPreview = function () {};
 
   function bind() {
+    $('seasonalAdd').addEventListener('click', () => openSeasonal(null));
+    $('seasonalImage').addEventListener('input', updateSeasonalPreview);
+    CremesSeasonal.applyImageFallback($('seasonalPreview'));
+    ['seasonalFrom', 'seasonalUntil'].forEach(id => $(id).addEventListener('input', () => $('seasonalUntil').setCustomValidity('')));
+    $('seasonalList').addEventListener('click', event => {
+      handleMove(event, 'products', state.seasonal, loadSeasonal);
+      const button = event.target.closest('[data-edit-seasonal]');
+      if (button) openSeasonal(state.seasonal.find(row => row.id === button.dataset.editSeasonal));
+    });
+    $('seasonalForm').addEventListener('submit', event => {
+      event.preventDefault();
+      withBusy(event.submitter || $('drawerSave'), saveSeasonal);
+    });
     updateProductPreview = bindPreview('productImage', 'productPreview', 'productPreviewEmpty');
     updatePogacsaPreview = bindPreview('pogacsaImage', 'pogacsaPreview', 'pogacsaPreviewEmpty');
     updatePlaceholderPreview = bindPreview('setPlaceholder', 'placeholderPreview', 'placeholderPreviewEmpty');
@@ -1750,6 +1855,7 @@
 
     $('drawerDelete').addEventListener('click', () => {
       if (state.drawerPanel === 'product') deleteProduct();
+      else if (state.drawerPanel === 'seasonal') deleteSeasonal();
       else if (state.drawerPanel === 'pogacsa') deletePogacsa();
       else if (state.drawerPanel === 'hours') deleteHours();
       else if (state.drawerPanel === 'extra') deleteExtra();
@@ -1900,7 +2006,7 @@
 
   async function loadAll() {
     fillWeekdays();
-    await Promise.all([loadOrders(), loadProducts(), loadPogacsa(), loadExtras(), loadHours(), loadSettings()]);
+    await Promise.all([loadOrders(), loadProducts(), loadSeasonal(), loadPogacsa(), loadExtras(), loadHours(), loadSettings()]);
   }
 
   async function boot() {

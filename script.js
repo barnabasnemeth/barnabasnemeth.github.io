@@ -306,6 +306,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const { data, error } = await client
                 .from('products')
                 .select('name,dietary_tags,show_on_homepage,product_prices(slices,price_huf)')
+                .eq('product_kind', 'cake')
                 .eq('is_available', true)
                 .eq('show_on_homepage', true)
                 .order('sort_order');

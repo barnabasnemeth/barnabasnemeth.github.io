@@ -189,3 +189,18 @@
 @media (prefers-reduced-motion: reduce) {
     .landing-page #rendeles .rendeles-cta-panel .btn:hover { transform: none; }
 }
+/* Seasonal cards share the cake collection's typography and palette. */
+.seasonal-collection[hidden] { display: none !important; }
+.seasonal-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 24px; }
+.seasonal-card { display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(145, 111, 77, .22); border-radius: 16px; background: #fffdf8; }
+.seasonal-card__image { display: block; box-sizing: border-box; width: 100%; height: clamp(200px, 60vw, 260px); max-height: 260px; flex-shrink: 0; object-fit: contain; object-position: center; background: radial-gradient(ellipse at center, #f5efe6 0%, #e7daca 100%); }
+.seasonal-card__image.seasonal-logo { object-fit: contain; padding: 42px; }
+.seasonal-card__image--portrait { width: auto; max-width: 100%; align-self: center; }
+.seasonal-card__body { padding: 24px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; flex: 1; }
+.seasonal-card__name { margin: 0; font-family: 'Besley', Georgia, serif; font-size: 1.45rem; color: #3a2a20; }
+.seasonal-card__price { font-size: 1.25rem; font-weight: 600; margin: 4px 0; color: #6e4c2d; }
+.seasonal-card__dates { color: #6e6258; font-size: .92rem; line-height: 1.6; margin: 0; }
+.seasonal-card__body .cake-collection__order { margin-top: auto; }
+.seasonal-card__closed { margin: auto 0 0; padding-top: 12px; color: #6e6258; font-weight: 600; }
+@media (min-width: 992px) { .seasonal-card:only-child { flex-direction: row; } .seasonal-card:only-child .seasonal-card__image { width: 45%; height: 320px; max-height: 320px; } }
+@media (min-width: 992px) { .seasonal-card:only-child .seasonal-card__image--portrait { width: auto; max-width: 45%; align-self: flex-start; } }

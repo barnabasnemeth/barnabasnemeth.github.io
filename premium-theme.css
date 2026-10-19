@@ -1932,6 +1932,12 @@ body.order-page {
     background: linear-gradient(180deg, #F6EFE6 0%, #E8D9C6 100%);
 }
 
+.order-page .product-card img.seasonal-logo {
+    object-fit: contain !important;
+    padding: 24px;
+    background: #f5efe6;
+}
+
 .order-page .product-card-body {
     display: flex;
     flex-direction: column;

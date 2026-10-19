@@ -1,0 +1,587 @@
+{
+  "products": [
+    {
+      "id": "b7f29970-5221-42ab-8c27-3b91c1bab220",
+      "name": "Málna – Fehércsokoládé – Bergamott",
+      "dietary_tags": "",
+      "show_on_homepage": true,
+      "is_available": true,
+      "image_url": "https://i.ibb.co/Sz1RwvD/TORTA-21-m-min.jpg",
+      "sort_order": 10,
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T15:59:37.119945+00:00",
+      "product_kind": "cake"
+    },
+    {
+      "id": "b5c6aafe-9048-4862-a29b-7c4a035099dd",
+      "name": "Piemonti törökmogyoró – Tejcsokoládé – Mascarpone",
+      "dietary_tags": "GM",
+      "show_on_homepage": true,
+      "is_available": true,
+      "image_url": "https://i.ibb.co/4RgX1tXV/TORTA-40-m-min.jpg",
+      "sort_order": 20,
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T15:59:37.119945+00:00",
+      "product_kind": "cake"
+    },
+    {
+      "id": "bd4c092a-f05f-4d0a-9730-98f49fa05cac",
+      "name": "Pisztácia – Maracuja - Narancs",
+      "dietary_tags": "GM",
+      "show_on_homepage": true,
+      "is_available": true,
+      "image_url": "https://i.ibb.co/sdHpVN4s/54396929870-d99091a5d1-c.jpg",
+      "sort_order": 30,
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T15:59:37.119945+00:00",
+      "product_kind": "cake"
+    },
+    {
+      "id": "93b04ff4-523f-4455-92fd-336f99f077c6",
+      "name": "Triplacsokoládé",
+      "dietary_tags": "",
+      "show_on_homepage": true,
+      "is_available": true,
+      "image_url": null,
+      "sort_order": 40,
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T15:59:37.119945+00:00",
+      "product_kind": "cake"
+    },
+    {
+      "id": "498f0429-a7c1-472b-9c04-a0d5e7b24e9b",
+      "name": "Belgacsokoládé-Málna-Brownie",
+      "dietary_tags": "",
+      "show_on_homepage": true,
+      "is_available": true,
+      "image_url": null,
+      "sort_order": 50,
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T15:59:37.119945+00:00",
+      "product_kind": "cake"
+    },
+    {
+      "id": "529d968a-67d8-4b22-9022-43d004f5d37e",
+      "name": "Étcsokoládé – Kókusz - Meggy",
+      "dietary_tags": "VEGAN, CM, GM, LM",
+      "show_on_homepage": true,
+      "is_available": true,
+      "image_url": "https://i.ibb.co/k6gmmW6L/TORTA-51-m.jpg",
+      "sort_order": 60,
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T15:59:37.119945+00:00",
+      "product_kind": "cake"
+    },
+    {
+      "id": "6793248e-30a1-4467-9599-03bc6990f91a",
+      "name": "Gyümölcsös Mindenmentes (Mangó-Maracuja)",
+      "dietary_tags": "VEGAN, CM, GM, LM",
+      "show_on_homepage": true,
+      "is_available": true,
+      "image_url": "https://i.ibb.co/PsnMPFWh/TORTA-2-min.jpg",
+      "sort_order": 70,
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T15:59:37.119945+00:00",
+      "product_kind": "cake"
+    },
+    {
+      "id": "6edc8aa6-b11b-482a-b47c-cd47c59c089a",
+      "name": "Halloweeni süti box",
+      "dietary_tags": "",
+      "show_on_homepage": true,
+      "is_available": true,
+      "image_url": "https://www.flickr.com/photos/202221916@N07/55598930402/in/dateposted-public/",
+      "sort_order": 71,
+      "created_at": "2026-10-19T19:32:45.644339+00:00",
+      "updated_at": "2026-10-19T19:32:45.644339+00:00",
+      "product_kind": "cake"
+    }
+  ],
+  "product_prices": [
+    {
+      "id": "80733ccc-5598-445e-baa6-ad57f78ddc76",
+      "product_id": "b7f29970-5221-42ab-8c27-3b91c1bab220",
+      "slices": 24,
+      "price_huf": 40000
+    },
+    {
+      "id": "62dcd763-44ae-4362-a0fc-a195571c5866",
+      "product_id": "b7f29970-5221-42ab-8c27-3b91c1bab220",
+      "slices": 16,
+      "price_huf": 24500
+    },
+    {
+      "id": "ce15c3cf-92c0-4817-a17b-d4b7e09a6c01",
+      "product_id": "b7f29970-5221-42ab-8c27-3b91c1bab220",
+      "slices": 12,
+      "price_huf": 19000
+    },
+    {
+      "id": "512f7048-af16-45aa-a570-2a484250ea6f",
+      "product_id": "b7f29970-5221-42ab-8c27-3b91c1bab220",
+      "slices": 8,
+      "price_huf": 14000
+    },
+    {
+      "id": "1ef5c52d-48ce-44d7-944c-9952ee18d350",
+      "product_id": "b5c6aafe-9048-4862-a29b-7c4a035099dd",
+      "slices": 24,
+      "price_huf": 44500
+    },
+    {
+      "id": "b3e8f5d7-e066-485b-9dff-a10ae0237ba1",
+      "product_id": "b5c6aafe-9048-4862-a29b-7c4a035099dd",
+      "slices": 16,
+      "price_huf": 28500
+    },
+    {
+      "id": "0ec7a5c0-1f45-4ceb-8f2b-4c8d2142a084",
+      "product_id": "b5c6aafe-9048-4862-a29b-7c4a035099dd",
+      "slices": 12,
+      "price_huf": 22500
+    },
+    {
+      "id": "025a9adb-af7a-41ac-b594-136200ffc8a7",
+      "product_id": "b5c6aafe-9048-4862-a29b-7c4a035099dd",
+      "slices": 8,
+      "price_huf": 15500
+    },
+    {
+      "id": "b870e2c1-f537-4468-b848-e89eee5a0813",
+      "product_id": "bd4c092a-f05f-4d0a-9730-98f49fa05cac",
+      "slices": 24,
+      "price_huf": 46000
+    },
+    {
+      "id": "b2c4c649-ba23-4ed3-8b06-ff06351f4094",
+      "product_id": "bd4c092a-f05f-4d0a-9730-98f49fa05cac",
+      "slices": 16,
+      "price_huf": 30000
+    },
+    {
+      "id": "d855c83a-e6ca-4d01-a46d-05cef72bb28e",
+      "product_id": "bd4c092a-f05f-4d0a-9730-98f49fa05cac",
+      "slices": 12,
+      "price_huf": 23000
+    },
+    {
+      "id": "2595b085-d729-4afe-a0e2-b6595324529f",
+      "product_id": "bd4c092a-f05f-4d0a-9730-98f49fa05cac",
+      "slices": 8,
+      "price_huf": 16000
+    },
+    {
+      "id": "9c35de14-cf25-4da3-a48a-f85119d1e5d7",
+      "product_id": "93b04ff4-523f-4455-92fd-336f99f077c6",
+      "slices": 24,
+      "price_huf": 40000
+    },
+    {
+      "id": "6176267b-f852-40d7-9bcb-aa924781af9b",
+      "product_id": "93b04ff4-523f-4455-92fd-336f99f077c6",
+      "slices": 16,
+      "price_huf": 25500
+    },
+    {
+      "id": "13ca632e-eb9d-4e8a-9a76-a93f31bb24ec",
+      "product_id": "93b04ff4-523f-4455-92fd-336f99f077c6",
+      "slices": 12,
+      "price_huf": 20000
+    },
+    {
+      "id": "6bcc2295-c314-4810-a10f-9b79ccd43ec6",
+      "product_id": "93b04ff4-523f-4455-92fd-336f99f077c6",
+      "slices": 8,
+      "price_huf": 14000
+    },
+    {
+      "id": "e4e79dfb-33f9-4a11-8048-ec87fa59994d",
+      "product_id": "498f0429-a7c1-472b-9c04-a0d5e7b24e9b",
+      "slices": 24,
+      "price_huf": 44500
+    },
+    {
+      "id": "edc8ca48-e67b-4462-9248-b9350eee451d",
+      "product_id": "498f0429-a7c1-472b-9c04-a0d5e7b24e9b",
+      "slices": 16,
+      "price_huf": 28500
+    },
+    {
+      "id": "2854b428-4f69-410e-a8d0-20790d97cee3",
+      "product_id": "498f0429-a7c1-472b-9c04-a0d5e7b24e9b",
+      "slices": 12,
+      "price_huf": 22500
+    },
+    {
+      "id": "0bfce6f9-7aa9-434a-9bba-f1c062bfda26",
+      "product_id": "498f0429-a7c1-472b-9c04-a0d5e7b24e9b",
+      "slices": 8,
+      "price_huf": 15500
+    },
+    {
+      "id": "2285971b-ed2b-4ab9-937c-8fd1ac5df07d",
+      "product_id": "529d968a-67d8-4b22-9022-43d004f5d37e",
+      "slices": 24,
+      "price_huf": 39000
+    },
+    {
+      "id": "7a9b5638-dfb1-458a-85cf-4c08857a7c35",
+      "product_id": "529d968a-67d8-4b22-9022-43d004f5d37e",
+      "slices": 16,
+      "price_huf": 23500
+    },
+    {
+      "id": "572ab77c-96dd-4330-848f-dcf233c853fe",
+      "product_id": "529d968a-67d8-4b22-9022-43d004f5d37e",
+      "slices": 12,
+      "price_huf": 18000
+    },
+    {
+      "id": "b1fdcd4f-18ea-498b-8273-c18e9730e4f2",
+      "product_id": "529d968a-67d8-4b22-9022-43d004f5d37e",
+      "slices": 8,
+      "price_huf": 13000
+    },
+    {
+      "id": "84f0d4c1-a7c8-4d5a-807f-f76abea90162",
+      "product_id": "6793248e-30a1-4467-9599-03bc6990f91a",
+      "slices": 24,
+      "price_huf": 39000
+    },
+    {
+      "id": "871c5a3e-3ac2-44cc-933b-bfb9afde5be4",
+      "product_id": "6793248e-30a1-4467-9599-03bc6990f91a",
+      "slices": 16,
+      "price_huf": 23500
+    },
+    {
+      "id": "0e62d287-85ac-4bec-a801-d1e8b43713bb",
+      "product_id": "6793248e-30a1-4467-9599-03bc6990f91a",
+      "slices": 12,
+      "price_huf": 18000
+    },
+    {
+      "id": "a3fe0dd0-226b-45c9-976c-93f4272b97ec",
+      "product_id": "6793248e-30a1-4467-9599-03bc6990f91a",
+      "slices": 8,
+      "price_huf": 13000
+    },
+    {
+      "id": "f8db0d7a-62f4-439f-80d5-db37a6316b83",
+      "product_id": "6edc8aa6-b11b-482a-b47c-cd47c59c089a",
+      "slices": null,
+      "price_huf": 6490
+    }
+  ],
+  "pogacsa_products": [
+    {
+      "id": "07c95e7a-f524-4cf0-9f53-377682d52ee6",
+      "name": "Túrós-gouda sajtos apró pogácsa",
+      "price_huf": 8390,
+      "min_order_quantity": 0.5,
+      "quantity_unit": "kg",
+      "price_unit_label": "Ft / kg",
+      "image_url": "/images/pogacsa.jpg",
+      "is_featured": true,
+      "is_available": true,
+      "sort_order": 10,
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T15:59:37.119945+00:00"
+    },
+    {
+      "id": "dc445e4e-032b-41c2-b9dc-37c946c3ca61",
+      "name": "Aszalt paradicsomos pogácsa",
+      "price_huf": 9390,
+      "min_order_quantity": 1,
+      "quantity_unit": "kg",
+      "price_unit_label": "Ft / kg",
+      "image_url": null,
+      "is_featured": false,
+      "is_available": true,
+      "sort_order": 30,
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T15:59:37.119945+00:00"
+    },
+    {
+      "id": "99bf29e5-975c-4a05-b85f-63c527fc8b0b",
+      "name": "Szarvasgombás pogácsa",
+      "price_huf": 10390,
+      "min_order_quantity": 1,
+      "quantity_unit": "kg",
+      "price_unit_label": "Ft / kg",
+      "image_url": null,
+      "is_featured": false,
+      "is_available": true,
+      "sort_order": 40,
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T15:59:37.119945+00:00"
+    },
+    {
+      "id": "4df3ae24-e59a-4ff1-954e-4e880a2eede9",
+      "name": "Tepertős pogácsa",
+      "price_huf": 9390,
+      "min_order_quantity": 1,
+      "quantity_unit": "kg",
+      "price_unit_label": "Ft / kg",
+      "image_url": null,
+      "is_featured": false,
+      "is_available": true,
+      "sort_order": 20,
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T20:46:30.748378+00:00"
+    }
+  ],
+  "homepage_extras": [
+    {
+      "id": "70262c4c-eb25-4fd2-ab04-870a9058dde6",
+      "name": "Choux",
+      "is_visible": true,
+      "sort_order": 10,
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T15:59:37.119945+00:00"
+    },
+    {
+      "id": "5a9aab53-a8e8-4c00-8ff7-72678c25170b",
+      "name": "Madeleine",
+      "is_visible": true,
+      "sort_order": 20,
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T15:59:37.119945+00:00"
+    },
+    {
+      "id": "c932c332-740b-4b69-b877-a5749232ec53",
+      "name": "Macaron",
+      "is_visible": true,
+      "sort_order": 30,
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T15:59:37.119945+00:00"
+    },
+    {
+      "id": "8a6d3ab9-dcbe-4056-a980-c99e881cf234",
+      "name": "Cake-pop",
+      "is_visible": true,
+      "sort_order": 40,
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T15:59:37.119945+00:00"
+    },
+    {
+      "id": "b7b1e598-9b9b-43bb-8cde-de505b766762",
+      "name": "Pohárkrémek",
+      "is_visible": true,
+      "sort_order": 50,
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T15:59:37.119945+00:00"
+    }
+  ],
+  "opening_hours": [
+    {
+      "id": "1e8ad509-649c-4091-b4b2-ab90f3f85100",
+      "day_label": "Hétfő",
+      "opens_at": null,
+      "closes_at": null,
+      "is_closed": true,
+      "sort_order": 10,
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T15:59:37.119945+00:00"
+    },
+    {
+      "id": "15d4158a-1a10-4697-9873-63b9864a9874",
+      "day_label": "Kedd-Péntek",
+      "opens_at": "11:30",
+      "closes_at": "18:00",
+      "is_closed": false,
+      "sort_order": 20,
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T15:59:37.119945+00:00"
+    },
+    {
+      "id": "7be682f1-e45f-47df-9f6e-44dcf7eb92ce",
+      "day_label": "Szombat",
+      "opens_at": "10:00",
+      "closes_at": "18:00",
+      "is_closed": false,
+      "sort_order": 30,
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T15:59:37.119945+00:00"
+    },
+    {
+      "id": "e351fb6b-8e60-43b0-a757-1322a13d336d",
+      "day_label": "Vasárnap",
+      "opens_at": "10:00",
+      "closes_at": "16:00",
+      "is_closed": false,
+      "sort_order": 40,
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T15:59:37.119945+00:00"
+    }
+  ],
+  "pickup_slots": [
+    {
+      "id": "78c345fa-28e5-49a4-8314-a39aa1c90ff6",
+      "weekday": 1,
+      "label": "12:00–14:00",
+      "sort_order": 10
+    },
+    {
+      "id": "790aac57-f109-4e37-b347-f4bd90a68644",
+      "weekday": 1,
+      "label": "14:00–16:00",
+      "sort_order": 20
+    },
+    {
+      "id": "617bb60e-f746-43b6-b057-2be48016b430",
+      "weekday": 1,
+      "label": "16:00–18:00",
+      "sort_order": 30
+    },
+    {
+      "id": "99b3f064-2988-4ae5-9659-b38916d36fa4",
+      "weekday": 2,
+      "label": "12:00–14:00",
+      "sort_order": 10
+    },
+    {
+      "id": "a5682c72-d84e-470d-9588-c9defab8b2bf",
+      "weekday": 2,
+      "label": "14:00–16:00",
+      "sort_order": 20
+    },
+    {
+      "id": "400d551d-b3e8-469c-9697-abc08fc01a57",
+      "weekday": 2,
+      "label": "16:00–18:00",
+      "sort_order": 30
+    },
+    {
+      "id": "6e7f4cc6-c7bc-4620-9b62-8895359d4628",
+      "weekday": 3,
+      "label": "12:00–14:00",
+      "sort_order": 10
+    },
+    {
+      "id": "01030fc8-0172-4d62-b824-d213cd75ca57",
+      "weekday": 3,
+      "label": "14:00–16:00",
+      "sort_order": 20
+    },
+    {
+      "id": "26a190a3-52b7-4aeb-8c58-13973a886168",
+      "weekday": 3,
+      "label": "16:00–18:00",
+      "sort_order": 30
+    },
+    {
+      "id": "16e33aea-3796-4b49-99ae-319ce418e0d8",
+      "weekday": 4,
+      "label": "12:00–14:00",
+      "sort_order": 10
+    },
+    {
+      "id": "57d1318a-8387-45d3-896b-1971b40b6781",
+      "weekday": 4,
+      "label": "14:00–16:00",
+      "sort_order": 20
+    },
+    {
+      "id": "86fd675e-5660-42bf-90e3-59d00a5ac6ae",
+      "weekday": 4,
+      "label": "16:00–18:00",
+      "sort_order": 30
+    },
+    {
+      "id": "a6b87500-b0d8-4a39-9553-cfbe72c877dd",
+      "weekday": 5,
+      "label": "12:00–14:00",
+      "sort_order": 10
+    },
+    {
+      "id": "59f2bda8-5142-43bd-8651-2dec6e0380d6",
+      "weekday": 5,
+      "label": "14:00–16:00",
+      "sort_order": 20
+    },
+    {
+      "id": "77d09fef-d3b9-4496-8767-ecc0d8b2addf",
+      "weekday": 5,
+      "label": "16:00–18:00",
+      "sort_order": 30
+    },
+    {
+      "id": "e9f64648-a163-41da-a599-916b579dec01",
+      "weekday": 6,
+      "label": "10:00–12:00",
+      "sort_order": 10
+    },
+    {
+      "id": "44918dec-0597-4b58-9bc7-319021ab1485",
+      "weekday": 6,
+      "label": "12:00–14:00",
+      "sort_order": 20
+    },
+    {
+      "id": "6aee037b-a732-4930-a4a5-edc2f3030c2f",
+      "weekday": 6,
+      "label": "14:00–16:00",
+      "sort_order": 30
+    },
+    {
+      "id": "6e7368ef-f73d-4a81-b707-dc6e4b38db70",
+      "weekday": 6,
+      "label": "16:00–18:00",
+      "sort_order": 40
+    },
+    {
+      "id": "69c75aab-7f0d-4312-b28d-d3d4b194c78d",
+      "weekday": 0,
+      "label": "10:00–12:00",
+      "sort_order": 10
+    },
+    {
+      "id": "afc3c5a4-3510-4f04-a090-8725314730c0",
+      "weekday": 0,
+      "label": "12:00–14:00",
+      "sort_order": 20
+    },
+    {
+      "id": "bb9dcd6e-ebd4-4a3e-adb9-9c75442a71c1",
+      "weekday": 0,
+      "label": "14:00–16:00",
+      "sort_order": 30
+    }
+  ],
+  "blackout_ranges": [
+    {
+      "id": "2b68bcb1-7532-4fd3-b7f1-fbce5b28e9eb",
+      "starts_on": "2025-12-22",
+      "ends_on": "2026-01-06",
+      "blocks_cakes_only": true,
+      "message": "Tortát legkésőbb 2025. december 21-ig tudunk átadni, majd legközelebb 2026. január 7-től. Az ünnepi időszakban csak szezonális termékeink rendelhetők.",
+      "created_at": "2026-10-06T15:59:37.119945+00:00",
+      "updated_at": "2026-10-06T15:59:37.119945+00:00"
+    }
+  ],
+  "order_settings": [
+    {
+      "id": 1,
+      "min_lead_days": 2,
+      "rush_within_days": 5,
+      "rush_surcharge_huf": 3000,
+      "charge_rush_surcharge": false,
+      "block_cakes_on_monday": true,
+      "candle_unit_price_huf": 400,
+      "box_price_huf": 490,
+      "firework_price_huf": 990,
+      "opening_notice": "",
+      "guest_notice_allergy": "Műhelyünkben a keresztszennyeződés lehetőségét teljes mértékben kizárni nem tudjuk, ezért kérjük, hogy allergia vagy ételintolerancia esetén rendelés előtt ezt mindenképpen vegyék figyelembe.",
+      "guest_notice_rush": "A rendeléstől számított 5 napon belüli átvétel esetén 3.000 Ft sürgősségi felárat számítunk fel. A rövid határidős rendelés részleteiről a visszaigazoláskor egyeztetünk.",
+      "pickup_help_text": "Minden torta frissen és gondosan készül, ezért 48 órán belül nem tudunk tortát átadni. Emellett hétfőre torta nem rendelhető, szezonális termékeink viszont továbbra is elérhetők.",
+      "rush_warning_text": "Figyelem! 5 napon belüli átvételi időpont esetén rövid határidős felár kerül felszámításra.",
+      "rush_summary_text": "A rövid határidős felár mértéke egyeztetés tárgya.",
+      "monday_block_message": "Hétfőn a cukrászda zárva tart, ezért torta nem választható erre a napra. Ünnepi szezonális termékeink azonban hétfőre is rendelhetők.",
+      "placeholder_image_url": "https://cremesdessert.com/images/logo-white.png",
+      "updated_at": "2026-10-08T08:55:06.844815+00:00"
+    }
+  ],
+  "orders": [],
+  "order_items": []
+}

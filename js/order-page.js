@@ -11,13 +11,6 @@
     }).format(new Date());
   }
 
-  function addCalendarDays(iso, days) {
-    const [y, m, d] = iso.split('-').map(Number);
-    const dt = new Date(Date.UTC(y, m - 1, d));
-    dt.setUTCDate(dt.getUTCDate() + days);
-    return dt.toISOString().slice(0, 10);
-  }
-
   function weekdayOf(iso) {
     const [y, m, d] = iso.split('-').map(Number);
     return new Date(Date.UTC(y, m - 1, d)).getUTCDay();
@@ -36,7 +29,7 @@
     const client = window.cremesSupabase();
     const [productsRes, settingsRes, slotsRes, blackoutsRes] = await Promise.all([
       client.from('products')
-        .select('id,name,dietary_tags,image_url,show_on_homepage,is_available,sort_order,product_prices(slices,price_huf)')
+        .select('id,name,dietary_tags,image_url,show_on_homepage,is_available,sort_order,product_kind,seasonal_price_huf,order_until,pickup_from,pickup_until,product_prices(slices,price_huf)')
         .eq('is_available', true)
         .order('sort_order'),
       client.from('order_settings').select('*').eq('id', 1).single(),
@@ -55,13 +48,18 @@
         else prices[price.slices] = price.price_huf;
       });
       return {
+        product_kind: row.product_kind,
+        is_available: row.is_available,
+        order_until: row.order_until,
+        pickup_from: row.pickup_from,
+        pickup_until: row.pickup_until,
         id: row.id,
         name: row.name,
         dietaryTags: row.dietary_tags || '',
         imageUrl: row.image_url || '',
         showOnHomepage: row.show_on_homepage,
         prices,
-        unitPrice
+        unitPrice: row.product_kind === 'seasonal' ? row.seasonal_price_huf : unitPrice
       };
     });
 
@@ -76,17 +74,73 @@
 
   function cremesSlotsForDate(dateStr) {
     if (!dateStr || !window.CREMES_ORDER) return [];
+    if (cremesPickupBlock(dateStr, cartProducts().some(p => Number(p.cartSlices) > 0))) return [];
     const day = weekdayOf(dateStr);
     return window.CREMES_ORDER.slots
       .filter(slot => Number(slot.weekday) === day)
+      .filter(slot => window.CremesSeasonal.pickupSlotAllowed(cartProducts(), dateStr, slot.label, leadDays()))
       .sort((a, b) => a.sort_order - b.sort_order)
       .map(slot => slot.label);
   }
 
   function cremesMinPickupDate() {
+    return pickupBounds().min;
+  }
+
+  function cartProducts() {
+    const items = typeof window.cremesCartItems === 'function' ? window.cremesCartItems() : [];
+    const products = window.CREMES_ORDER?.products || [];
+    return items.map(item => ({ ...(products.find(p => p.id === item.productId) || { product_kind: 'cake' }), cartSlices: item.szeletek }));
+  }
+
+  function leadDays() {
     const lead = Number(settings().min_lead_days);
-    const days = Number.isFinite(lead) ? lead : 2;
-    return addCalendarDays(budapestToday(), days);
+    return Number.isFinite(lead) ? lead : 2;
+  }
+
+  function pickupBounds() {
+    const products = cartProducts();
+    const delay = window.CremesSeasonal.onlySeasonal(products) ? 0 : leadDays() * 86400000;
+    const earliest = window.CremesSeasonal.budapestNow(new Date(Date.now() + delay)).slice(0, 10);
+    return window.CremesSeasonal.pickupBounds(products, earliest, 0);
+  }
+
+  function cartProblem() {
+    const products = cartProducts();
+    const expired = products.find(p => p.product_kind === 'seasonal' && !window.CremesSeasonal.isOrderable(p));
+    if (expired) return 'A(z) „' + expired.name + '” rendelése lezárult. Kérjük, távolítsa el a kosárból.';
+    if (pickupBounds().empty) return 'A kosár termékeihez nincs közös átvételi nap. Kérjük, adja le őket külön rendelésben.';
+    return '';
+  }
+
+  function cremesRefreshPickupConstraints() {
+    const input = document.getElementById('atvetel_napja');
+    if (!input || !window.CREMES_ORDER) return;
+    const bounds = pickupBounds();
+    input.min = bounds.min;
+    if (bounds.max) input.max = bounds.max;
+    else input.removeAttribute('max');
+    const problem = cartProblem() || cremesPickupBlock(input.value, cartProducts().some(p => Number(p.cartSlices) > 0));
+    input.setCustomValidity(problem);
+    const message = document.getElementById('seasonalPickupMessage');
+    if (message) {
+      const seasonal = cartProducts().some(p => p.product_kind === 'seasonal');
+      message.textContent = problem || (seasonal ? 'A kosár alapján átvehető: ' + bounds.min + ' – ' + bounds.max + '. A beállított idősávok és zárások érvényesek.' : '');
+      message.hidden = !message.textContent;
+      message.classList.toggle('text-danger', !!problem);
+    }
+    const warning = document.getElementById('urgencyWarning');
+    if (warning) warning.classList.toggle('d-none', !input.value || !cremesIsRush(input.value));
+    const rushNotice = document.querySelector('[data-rush-notice]');
+    if (rushNotice) rushNotice.hidden = window.CremesSeasonal.onlySeasonal(cartProducts());
+    if (typeof window.updatePickupSlots === 'function') window.updatePickupSlots();
+    const slot = document.getElementById('atvetel_intervallum');
+    if (slot) {
+      const available = input.value ? cremesSlotsForDate(input.value) : [];
+      if (!problem && input.value && !available.length) {
+        input.setCustomValidity('Erre a napra nincs választható átvételi idősáv.');
+      }
+    }
   }
 
   function cremesDayDiff(dateStr) {
@@ -100,6 +154,7 @@
   }
 
   function cremesIsRush(dateStr) {
+    if (window.CremesSeasonal.onlySeasonal(cartProducts())) return false;
     const diff = cremesDayDiff(dateStr);
     if (diff == null) return false;
     const within = Number(settings().rush_within_days);
@@ -108,7 +163,11 @@
   }
 
   function cremesPickupBlock(dateStr, hasSliceCake) {
+    const problem = cartProblem();
+    if (problem) return problem;
     if (!dateStr) return '';
+    const bounds = pickupBounds();
+    if (dateStr < bounds.min || (bounds.max && dateStr > bounds.max)) return 'Az átvétel napja nem esik a kosárhoz engedélyezett időszakba.';
     const ranges = window.CREMES_ORDER?.blackouts || [];
     const closed = ranges.find(range =>
       !range.blocks_cakes_only && dateStr >= range.starts_on && dateStr <= range.ends_on
@@ -156,9 +215,10 @@
     const list = document.querySelector('.guest-notice-list');
     if (list) {
       list.replaceChildren();
-      [cfg.guest_notice_allergy, rushNoticeFromSettings(cfg)].forEach(text => {
+      [cfg.guest_notice_allergy, rushNoticeFromSettings(cfg)].forEach((text, index) => {
         if (!text) return;
         const li = document.createElement('li');
+        if (index === 1) li.dataset.rushNotice = '';
         li.textContent = text;
         list.appendChild(li);
       });
@@ -173,6 +233,12 @@
   }
 
   async function cremesSubmitOrder(body) {
+    cremesRefreshPickupConstraints();
+    const problem = cremesPickupBlock(body.pickup_date, cartProducts().some(p => Number(p.cartSlices) > 0));
+    if (problem) throw new Error(problem);
+    if (!cremesSlotsForDate(body.pickup_date).includes(body.pickup_slot)) {
+      throw new Error('A választott átvételi idősáv már nem elérhető.');
+    }
     const client = window.cremesSupabase();
     const { data, error } = await client.rpc('submit_order', { payload: body });
     if (error) {
@@ -185,6 +251,24 @@
     return data;
   }
 
+  function cremesValidateOrderForm() {
+    cremesRefreshPickupConstraints();
+    const form = document.getElementById('orderForm');
+    const name = document.getElementById('nev');
+    const email = document.getElementById('email');
+    name.setCustomValidity(name.value.trim() ? '' : 'Kérjük, adja meg a nevét.');
+    email.setCustomValidity(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim()) ? '' : 'Kérjük, érvényes email címet adjon meg.');
+    if (form.checkValidity()) return true;
+    form.classList.add('was-validated');
+    const invalid = form.querySelector(':invalid');
+    if (invalid) {
+      invalid.focus();
+      invalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      invalid.reportValidity();
+    }
+    return false;
+  }
+
   window.cremesEnsureOrderData = cremesEnsureOrderData;
   window.cremesSlotsForDate = cremesSlotsForDate;
   window.cremesMinPickupDate = cremesMinPickupDate;
@@ -192,6 +276,12 @@
   window.cremesPickupBlock = cremesPickupBlock;
   window.cremesApplyOrderCopy = cremesApplyOrderCopy;
   window.cremesSubmitOrder = cremesSubmitOrder;
+  window.cremesRefreshPickupConstraints = cremesRefreshPickupConstraints;
+  window.cremesValidateOrderForm = cremesValidateOrderForm;
+
+  document.addEventListener('input', event => {
+    if (event.target.id === 'nev' || event.target.id === 'email') event.target.setCustomValidity('');
+  });
 
   document.addEventListener('DOMContentLoaded', () => {
     cremesEnsureOrderData()

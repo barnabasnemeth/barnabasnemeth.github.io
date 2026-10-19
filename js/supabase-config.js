@@ -3,6 +3,9 @@ window.CREMES_SUPABASE_URL = 'https://ueveupqtkjzhedlnkpki.supabase.co';
 window.CREMES_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable__Siw4K9D-Hl5zAsdspOa2A_OyLO2i2y';
 
 window.cremesSupabase = function () {
+  if (window.CREMES_LOCAL_PREVIEW && typeof window.cremesLocalClient === 'function') {
+    return window.cremesLocalClient();
+  }
   if (!window.supabase || typeof window.supabase.createClient !== 'function') {
     throw new Error('A Supabase kliens nem töltődött be.');
   }
