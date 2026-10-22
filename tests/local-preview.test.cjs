@@ -22,8 +22,9 @@ test('localhost shows the regular catalog and active seasonal examples without S
     assert.ok(cakes.data.length > 0);
     assert.ok(cakes.data[0].product_prices.length > 0);
     const seasonal = await client.from('products').select('*').eq('product_kind', 'seasonal').eq('is_available', true);
-    assert.equal(seasonal.data.length, 2);
-    assert.ok(seasonal.data.every(p => p.order_until > new Date().toISOString().slice(0, 10)));
+    assert.equal(seasonal.data.length, 3);
+    assert.ok(seasonal.data.filter(p => p.name.startsWith('[Minta]')).every(p => p.order_until > new Date().toISOString().slice(0, 10)));
+    assert.equal(seasonal.data.find(p => p.name === 'Halloweeni süti box').seasonal_price_huf, 6490);
     const submitted = await client.rpc('submit_order', { payload: {} });
     assert.match(submitted.error.message, /helyi előnézet/i);
   } finally { dom.window.close(); }
@@ -41,7 +42,7 @@ test('local seasonal edits persist across clients and can be hidden without chan
     w.eval(fs.readFileSync('js/local-preview.js', 'utf8'));
     w.__cremesLocalClient = null;
     const visible = await w.cremesSupabase().from('products').select('*').eq('product_kind', 'seasonal').eq('is_available', true);
-    assert.equal(visible.data.length, 2);
+    assert.equal(visible.data.length, 3);
     const reloaded = await w.cremesSupabase().from('products').select('*').eq('id', inserted.data.id).single();
     assert.equal(reloaded.data.is_available, false);
   } finally { dom.window.close(); }

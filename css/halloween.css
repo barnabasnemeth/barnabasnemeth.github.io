@@ -1,0 +1,179 @@
+/* Every override is gated; the original palette returns when the season ends. */
+html.halloween {
+  --bg-gradient-cream: linear-gradient(135deg, #fff3e3, #f6e2cd);
+  --bg-gradient-beige: linear-gradient(135deg, #f3ddc9, #ead1ba);
+  --off-white-gradient: linear-gradient(135deg, #fffaf3, #fff0df);
+}
+.halloween .landing-page #landing .overlay {
+  background: radial-gradient(ellipse at 70% 20%, rgba(150, 72, 27, .35), transparent 60%), linear-gradient(120deg, rgba(30, 15, 38, .85), rgba(48, 23, 48, .65));
+}
+.halloween .landing-page #landing .carousel-hero-subtitle { -webkit-text-fill-color: #ffd4a2; }
+.halloween .landing-page #landing .btn-premium-primary,
+.halloween .landing-page .cake-collection__order {
+  background: #ffbc77; border-color: #ffbc77; color: #321c30;
+}
+.halloween .landing-page #landing .btn-premium-primary:hover,
+.halloween .landing-page .cake-collection__order:hover { background: #ffd6a6; border-color: #ffd6a6; color: #321c30; }
+.halloween .landing-page .navbar.transparent { background: rgba(35, 18, 41, .6) !important; }
+.halloween .landing-page .navbar.scrolled { background: #fff3e5 !important; }
+.halloween .landing-page .site-footer { background: #28182f; border-top-color: #be784c; }
+.halloween .landing-page .seasonal-collection { border-color: #cc8856; background: #fff0df; }
+.halloween .landing-page .seasonal-card { border-color: #dfb18b; }
+.halloween .landing-page .collection-heading__ornament { color: #a34d22; }
+.halloween body.order-page { background: radial-gradient(ellipse at top, #f4d5b8, #fff5e9 65%); }
+.halloween-banner {
+  position: relative; isolation: isolate; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; gap: clamp(1rem, 3vw, 3rem);
+  padding: clamp(1.75rem, 4vw, 3rem) 1.5rem;
+  color: #fff3e4; text-align: left;
+  background: radial-gradient(ellipse at 10% 100%, #643742 0%, transparent 55%), #28182f;
+  border-block: 1px solid #a86643;
+}
+.halloween-banner .halloween-kicker { margin: 0 0 .65rem; color: #ffc78e; font: 600 .65rem/1.8 Arial, sans-serif; letter-spacing: .16em; }
+.halloween-banner h2 { margin: 0 0 .5rem; color: #fff3e4; font: 400 clamp(1.6rem, 3.5vw, 2.65rem)/1.25 'Besley', Georgia, serif; letter-spacing: -.035em; }
+.halloween-banner p:last-child { margin: 0; color: #e9cdbd; font: 400 .9rem/1.7 Arial, sans-serif; }
+.halloween-pumpkin { flex: 0 0 auto; font-size: clamp(2.8rem, 6vw, 5rem); filter: drop-shadow(0 0 22px #e8813840); }
+.halloween-bats { display: flex; align-items: center; gap: 12px; width: 115px; flex-shrink: 0; }
+.halloween-bats i { display: block; width: 42px; height: 24px; background: #d9ae96; opacity: .65; clip-path: polygon(0 0, 30% 23%, 38% 10%, 44% 30%, 56% 30%, 62% 10%, 70% 23%, 100% 0, 92% 65%, 73% 55%, 50% 100%, 27% 55%, 8% 65%); transform: rotate(-15deg); }
+.halloween-bats i:nth-child(2) { width: 28px; transform: translateY(-22px) rotate(12deg); }
+.halloween-bats i:nth-child(3) { width: 20px; transform: translateY(15px) rotate(-20deg); }
+.halloween .order-page .halloween-banner { margin-bottom: 2rem; border-radius: 16px; }
+@media (max-width: 575px) {
+  .halloween-banner { gap: 1rem; padding: 1.75rem 1.1rem; }
+  .halloween-banner .halloween-kicker { font-size: .58rem; letter-spacing: .08em; }
+  .halloween-bats { display: none; }
+  .halloween-pumpkin { font-size: 2.6rem; }
+}
+
+/* Full-site Halloween palette. Light form fields retain familiar validation colours. */
+html.halloween {
+  --cream: #17111e;
+  --brown-deep: #fff0dc;
+  --brown-muted: #d9c5bd;
+  --off-white: #281d30;
+  --off-white-gradient: linear-gradient(145deg, #211727, #17121e);
+  --bg-gradient-cream: linear-gradient(145deg, #2d1c30, #1d1424);
+  --bg-gradient-beige: linear-gradient(145deg, #241b2e, #140f1c);
+  --bg-gradient-champagne: linear-gradient(145deg, #322034, #1c1423);
+  --champagne: #f5b67c;
+  --gold-beige: #efaa67;
+}
+.halloween body.landing-page, .halloween body.order-page { background: #17111e; color: #f7e9da; }
+.halloween .landing-page :is(.navbar.scrolled, .navbar.transparent) { background: rgba(25, 16, 32, .94) !important; border-bottom: 1px solid #9d613c; }
+.halloween .landing-page .navbar :is(.nav-link, .landing-brand, .navbar-social-link) { color: #fff0dc !important; }
+.halloween .landing-page .navbar-hamburger__line { background: #ffc285 !important; }
+.halloween .landing-page .navbar-collapse { background: transparent; }
+.halloween .landing-page :is(.collection-heading__title, .cake-collection__title, .pastry-collection__title, .seasonal-card__name, .extras-feature-card__name) { color: #fff0dc; }
+.halloween .landing-page :is(.cake-collection, .pastry-collection, .seasonal-collection, .seasonal-card, .extras-feature-card, .gift-editorial, .contact-details, .glide__slide) {
+  background: linear-gradient(135deg, #332237, #201727) !important;
+  border-color: #815539; box-shadow: 0 10px 40px #0003;
+}
+.halloween .landing-page :is(.seasonal-card__dates, .seasonal-card__closed, .cake-collection__intro, .extras-feature-card__meta, .contact-details a) { color: #ddc8bd; }
+.halloween .landing-page :is(.seasonal-card__price, .extras-feature-card__price, .extras-feature-card__amount, .collection-heading__eyebrow, .collection-heading__ornament) { color: #ffc286; }
+.halloween .landing-page .cake-pricing { color: #f7e9da; background: #231a2c; }
+.halloween .landing-page .cake-pricing :is(th, td) { color: #f7e9da; background: #231a2c; border-color: #71503f; }
+.halloween .landing-page .cake-pricing__name-text { color: #ffe5c9; }
+.halloween .landing-page .cake-badge { background: #483046; color: #ffd09b; border-color: #996344; }
+.halloween .landing-page .modal-content { background: #271d30; color: #f7e9da; }
+.halloween .landing-page .modal-content .close { color: #fff0dc; }
+.halloween .landing-page #landing .btn-premium-primary,
+.halloween .landing-page #rendeles .rendeles-cta-panel .btn,
+.halloween .landing-page :is(.btn-premium-primary, .ajanlatkeres-btn, .galeria-btn, .cake-collection__order),
+.halloween .halloween-order {
+  background: linear-gradient(120deg, #ffc27f, #f29749) !important; color: #26152b !important; border: 1px solid #ffc27f !important;
+  box-shadow: 0 5px 25px #f2974926;
+}
+.halloween .halloween-order { display: inline-flex; align-items: center; min-height: 48px; padding: .8rem 1.3rem; margin-top: 1.4rem; border-radius: 7px; font: 600 .85rem/1.5 Arial, sans-serif; text-decoration: none; transition: box-shadow .25s, transform .25s; }
+.halloween .halloween-order:hover { transform: translateY(-3px); box-shadow: 0 8px 30px #f2974955; }
+.halloween .halloween-order:focus-visible { outline: 3px solid #fff0dc; outline-offset: 5px; }
+.halloween .halloween-banner { background: radial-gradient(ellipse at 0% 100%, #703b37, transparent 65%), #22132b; padding-block: clamp(2.5rem, 6vw, 4.5rem); }
+.halloween .halloween-banner-copy { max-width: 580px; min-width: 0; }
+.halloween .halloween-banner .halloween-promo { color: #ead3c6; margin: .8rem 0 0; line-height: 1.7; }
+.halloween .halloween-pumpkin { animation: halloween-bob 5s ease-in-out infinite; }
+.halloween .halloween-bats i { animation: halloween-bob 4s ease-in-out infinite alternate; }
+.halloween .halloween-bats i:nth-child(2) { animation-delay: -2s; }
+.halloween .order-page main > header :is(h1, p) { color: #fff0dc; }
+.halloween .order-page :is(.card, .product-card, .modal-content) { --brown-deep: #3a2a20; --brown-muted: #7a6253; color: #3a2a20; border-color: #ae7047; }
+.halloween .halloween-atmosphere { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 4; }
+.halloween .halloween-moon { position: absolute; top: 110px; right: 7%; width: 68px; height: 68px; border-radius: 50%; box-shadow: inset -16px -6px 0 #ffd09b, 12px 0 45px #ffb97122; opacity: .55; }
+.halloween .halloween-fog { position: absolute; bottom: -100px; left: -25%; width: 150%; height: 260px; background: radial-gradient(ellipse, #c19ab91a, transparent 65%); animation: halloween-fog 24s ease-in-out infinite alternate; }
+.halloween .halloween-flying-bat { position: absolute; top: 21%; left: -10%; width: 44px; height: 25px; background: #b18baf; opacity: 0; clip-path: polygon(0 0,30% 23%,38% 10%,44% 30%,56% 30%,62% 10%,70% 23%,100% 0,92% 65%,73% 55%,50% 100%,27% 55%,8% 65%); animation: halloween-flight 23s linear infinite; }
+.halloween .halloween-flying-bat:nth-last-child(2) { top: 32%; width: 28px; animation-delay: -9s; animation-duration: 29s; }
+.halloween .halloween-flying-bat:last-child { top: 15%; width: 34px; animation-delay: -17s; animation-duration: 32s; }
+@keyframes halloween-bob { 50% { transform: translateY(-8px) rotate(5deg); } }
+@keyframes halloween-fog { to { transform: translate(12%, -35px); } }
+@keyframes halloween-flight { 0% { transform: translate(0, 30px) rotate(-12deg); opacity: 0; } 10%, 80% { opacity: .35; } 45% { transform: translate(55vw, -25px) rotate(10deg); } 100% { transform: translate(120vw, 20px) rotate(-8deg); opacity: 0; } }
+@media (max-width: 575px) {
+  .halloween .halloween-banner { align-items: flex-start; }
+  .halloween .halloween-pumpkin { font-size: 2rem; margin-top: .5rem; }
+  .halloween .halloween-order { padding-inline: .8rem; font-size: .78rem; }
+  .halloween .halloween-moon { width: 45px; height: 45px; right: 5%; opacity: .3; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .halloween .halloween-atmosphere { display: none; }
+  .halloween .halloween-pumpkin, .halloween .halloween-bats i, .halloween .halloween-order { animation: none !important; transition: none !important; }
+}
+.halloween .landing-page .cake-collection .cake-card { background: #2b2033; border-color: #80583f; }
+.halloween .landing-page :is(.cake-card__name, .cake-card__amount, .pogacsa-offers__name, .pogacsa-offers__amount) { color: #fff0dc; }
+.halloween .landing-page :is(.cake-card__slice, .pogacsa-offers__meta) { color: #ddc8bd; }
+.halloween .landing-page :is(.cake-collection, .pastry-collection) .cake-collection__eyebrow,
+.halloween .landing-page .cake-collection__legend dt { color: #ffc286; }
+.halloween .landing-page section:not(#landing)::before,
+.halloween .landing-page section:not(#landing)::after { opacity: .07; }
+.halloween .landing-page .navbar-toggler { background: #2f2035 !important; border-color: #a36b45 !important; }
+.halloween .order-page :is(.card, .product-card, .modal-content) {
+  --brown-deep: #fff0dc; --brown-muted: #ddc8bd; --ink: #fff0dc;
+  background: #281e30 !important; color: #fff0dc; border-color: #80583f;
+}
+.halloween .order-page :is(.card, .product-card, .modal-content) :is(h2, h3, h4, h5, h6, label, .card-title, .product-title) { color: #fff0dc; }
+.halloween .order-page :is(.card, .product-card, .modal-content) :is(p, .text-muted, small) { color: #ddc8bd !important; }
+.halloween .order-page :is(.card-header, .card-footer) { background: #352439 !important; color: #fff0dc; }
+.halloween .order-page :is(input, select, textarea, .form-control) { color: #3a2a20; }
+.halloween .order-page :is(.btn-primary, .add-to-cart-btn) { background: #ffb66f !important; color: #26152b !important; border-color: #ffb66f !important; }
+.halloween .order-page .product-qty-group .qty-input { color: #fff0dc !important; }
+.halloween .order-page .product-qty-btn { color: #321c30 !important; }
+
+/* Explicit surface/text pairs prevent legacy light backgrounds inheriting light ink. */
+.halloween body.order-page { background: #17111e !important; }
+.halloween .landing-page #rendeles.rendeles-highlight { background: linear-gradient(135deg, #332237, #1d1424) !important; }
+.halloween .landing-page #opening-hours-list,
+.halloween .landing-page #opening-hours-list li { color: #f7e9da !important; }
+.halloween .landing-page #opening-hours-wrapper .opening-hours-message { color: #ffd2a0; }
+.halloween .landing-page #opening-hours-wrapper.opening-hours-closed-warning > p strong,
+.halloween .landing-page #opening-hours-wrapper.opening-hours-closed-warning .opening-hours-message { color: #ffb6ac; }
+.halloween .order-page :is(.guest-notice, .badge-soft, .summary-section, .torta-info-box) {
+  background: #352439 !important; color: #fff0dc; border-color: #916745 !important;
+}
+.halloween .order-page :is(.guest-notice-title, .summary-section-title) { color: #ffc286 !important; }
+.halloween .order-page :is(.input-group-text, .custom-select) { color: #3a2a20 !important; }
+.halloween .order-page :is(.form-control, .custom-select):disabled,
+.halloween .order-page .form-control[readonly] { color: #635248 !important; opacity: 1; }
+.halloween .order-page :is(.form-control, .custom-select)::placeholder { color: #78655a; opacity: 1; }
+.halloween .order-page :is(.modal-header, .modal-body, .modal-footer) {
+  background: #281e30 !important; color: #fff0dc; border-color: #916745;
+}
+.halloween .order-page :is(.table, .table th, .table td, .modal-title, .close) { color: #fff0dc !important; }
+.halloween .order-page :is(.table thead, .table tfoot, .table tbody tr, .table td, .table th) {
+  background: #352439 !important; border-color: #80583f !important;
+}
+.halloween .order-page #summaryModal table.stacked-table tbody td::before { color: #ffc286; }
+.halloween .order-page :is(.invalid-feedback, .text-danger) { color: #ffb6ac !important; }
+.halloween .order-page :is(.btn-outline-secondary, .btn-outline-dark) { color: #ffce9e; border-color: #c08b60; }
+.halloween .order-page :is(.btn-outline-secondary, .btn-outline-dark):hover { background: #49304b; color: #fff0dc; }
+.halloween .order-page .product-qty-btn { color: #321c30 !important; }
+.halloween .order-page .btn-cream { background: #ffb66f !important; color: #26152b !important; border-color: #ffb66f !important; }
+.halloween .order-page #floatingCart { color: #321c30; }
+.halloween .landing-page .modal-content :is(input, select, textarea) { color: #3a2a20; }
+.halloween .landing-page .modal-content .invalid-feedback { color: #ffb6ac; }
+.halloween .order-page .text-muted { color: #ddc8bd !important; }
+.halloween .order-page .floating-cart__badge { background: #ffb66f; color: #26152b; }
+.halloween .order-page .floating-cart__icon { color: #fff0dc; }
+.halloween .order-page .close { opacity: 1; text-shadow: none; }
+.halloween .landing-page .glide__arrow { background: #352439 !important; color: #fff0dc !important; border-color: #c08b60; }
+.halloween .landing-page .glide__arrow:hover { background: #49304b !important; }
+.halloween .order-page .floating-cart__badge { background: #ffb66f !important; color: #26152b !important; border-color: #281e30 !important; }
+.halloween .order-page .alert { background: #352439; color: #fff0dc; border-color: #b98a60; }
+.halloween .order-page .alert-danger { background: #49252f; color: #ffd9d3; border-color: #e89a8b; }
+.halloween .order-page .alert-success { background: #213c33; color: #d2f2de; border-color: #85b99b; }
+.halloween .order-page .alert-warning { background: #493424; color: #ffe3b4; border-color: #dfad69; }
+.halloween .order-page .alert :is(p, small, strong, .text-muted) { color: inherit !important; }
